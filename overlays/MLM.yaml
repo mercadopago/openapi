@@ -43,7 +43,7 @@ actions:
         x-mp-sites: [MLM]
         value:
           transaction_amount: 3600.00
-          token: "TEST-ff8080814c11e237014c1ff593b57b4d"
+          token: "<CARD_TOKEN>"
           description: "Electronics purchase"
           installments: 12
           payment_method_id: visa

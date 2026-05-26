@@ -26,8 +26,6 @@ info:
 servers:
 - url: https://api.mercadopago.com
   description: Production
-- url: https://api.mercadopago.com
-  description: Sandbox — Use TEST- credentials. PagoEfectivo auto-completes in sandbox.
 security:
 - bearerAuth: []
 tags:

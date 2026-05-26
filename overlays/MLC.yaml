@@ -36,7 +36,7 @@ actions:
         x-mp-sites: [MLC]
         value:
           transaction_amount: 10000
-          token: "TEST-ff8080814c11e237014c1ff593b57b4d"
+          token: "<CARD_TOKEN>"
           payment_method_id: redcompra
           installments: 1
           payer:

@@ -48,7 +48,7 @@ actions:
         x-mp-sites: [MLA]
         value:
           transaction_amount: 15000.00
-          token: "TEST-ff8080814c11e237014c1ff593b57b4d"
+          token: "<CARD_TOKEN>"
           description: "Purchase"
           installments: 6
           payment_method_id: amex

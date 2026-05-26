@@ -25,7 +25,7 @@ actions:
         x-mp-sites: [MLB]
         value:
           transaction_amount: 150.00
-          token: "TEST-ff8080814c11e237014c1ff593b57b4d"
+          token: "<CARD_TOKEN>"
           description: "Purchase"
           installments: 3
           payment_method_id: elo
@@ -39,7 +39,7 @@ actions:
         x-mp-sites: [MLB]
         value:
           transaction_amount: 200.00
-          token: "TEST-ff8080814c11e237014c1ff593b57b4d"
+          token: "<CARD_TOKEN>"
           description: "Purchase"
           installments: 1
           payment_method_id: hipercard
@@ -88,9 +88,6 @@ actions:
     description: Mark as Brazil-specific Pix/bank transfer endpoint
     update:
       x-mp-sites: [MLB]
-      x-mp-sandbox-behavior: >
-        In sandbox, Pix transactions auto-complete after a few seconds.
-        Use test CPF numbers for identification.
 
   - target: "$.components"
     description: Brazil-specific schemas

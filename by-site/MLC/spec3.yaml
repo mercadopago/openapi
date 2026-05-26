@@ -31,8 +31,6 @@ info:
 servers:
 - url: https://api.mercadopago.com
   description: Production
-- url: https://api.mercadopago.com
-  description: Sandbox — Use TEST- credentials. Khipu auto-completes in sandbox. CLP amounts are integers — no decimals.
 security:
 - bearerAuth: []
 tags:

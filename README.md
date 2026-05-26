@@ -106,7 +106,7 @@ MercadoPago uses three authentication patterns:
 
 **Critical rules:**
 - Tokens go in `Authorization: Bearer <token>` header **only** — never as `?access_token=` URL parameter
-- `TEST-xxx` tokens for sandbox, `APP_USR-xxx` for production
+- `APP_USR-xxx` for production
 - Public key is not an access token — using it server-side is a security misconfiguration
 
 ---
