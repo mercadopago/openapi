@@ -1,0 +1,299 @@
+openapi: 3.1.0
+info:
+  title: MercadoPago API
+  description: The MercadoPago REST API. Please see https://www.mercadopago.com/developers for more details.
+  termsOfService: https://www.mercadopago.com/developers/es/docs/resources/legal/terms-and-conditions
+  contact:
+    name: MercadoPago Developer Experience
+    url: https://www.mercadopago.com/developers
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+servers:
+- url: https://api.mercadopago.com
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: OAuth
+  description: Authorization flows for marketplace on-behalf-of and Wallet Connect
+  x-mp-sites: &id001
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: Preferences
+  description: Checkout Pro — redirect-based hosted checkout via Preferences
+  x-mp-sites: *id001
+- name: Payments
+  description: Create and manage payment transactions
+  x-mp-sites: *id001
+- name: Orders
+  description: Checkout API via Orders — recommended for new custom checkout integrations
+  x-mp-sites: *id001
+- name: Merchant Orders
+  description: Order containers that group payments for a single purchase
+  x-mp-sites: *id001
+- name: Customers
+  description: Customer profiles and stored payment methods
+  x-mp-sites: *id001
+- name: Cards
+  description: Saved cards and card tokenization
+  x-mp-sites: *id001
+- name: Addresses
+  description: Customer shipping and billing addresses
+  x-mp-sites: *id001
+- name: Payment Methods
+  description: Available payment methods and installment plans per country
+  x-mp-sites: *id001
+- name: Identification Types
+  description: Country-specific identity document type catalog
+  x-mp-sites: *id001
+- name: Cancellations & Refunds
+  description: Cancel payments and create full or partial refunds
+  x-mp-sites: *id001
+- name: Chargebacks
+  description: Chargeback dispute management
+  x-mp-sites: *id001
+- name: Subscriptions
+  description: Recurring payment subscriptions
+  x-mp-sites: *id001
+- name: Plans
+  description: Subscription billing plans
+  x-mp-sites: *id001
+- name: Invoices
+  description: Subscription billing invoices
+  x-mp-sites: *id001
+- name: Wallet Connect
+  description: OAuth-based wallet agreement flows for Wallet Connect
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: Stores
+  description: Physical store locations
+  x-mp-sites: *id001
+- name: POS
+  description: Point of sale device management
+  x-mp-sites: *id001
+- name: Terminals
+  description: Point hardware terminal management and print actions
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MLM
+- name: Point Deprecated
+  description: Deprecated Point integration APIs — use Terminals and Point Orders instead
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: QR Orders
+  description: In-store payment orders associated with QR codes
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: QR Integrator
+  description: Integrator configuration for QR in-store
+  x-mp-sites: *id001
+- name: QR Deprecated
+  description: Deprecated in-store QR order endpoints (V1, V2, Dynamic QR)
+  x-mp-sites: *id001
+- name: Claims
+  description: Post-sale claim details and search
+  x-mp-sites: *id001
+- name: Claim Messages
+  description: Messages and file attachments within a claim
+  x-mp-sites: *id001
+- name: Claim Resolutions
+  description: Mediation requests and expected resolutions
+  x-mp-sites: *id001
+- name: Claim Shipping
+  description: Upload shipping evidence to support a claim
+  x-mp-sites: *id001
+- name: Releases Report
+  description: Generate and schedule releases (settlement) reports
+  x-mp-sites: *id001
+- name: Settlements Report
+  description: Generate and schedule all-transactions reports
+  x-mp-sites: *id001
+- name: Payouts
+  description: Bank transfer and Pix payouts
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+paths:
+  /v1/chargebacks/{id}:
+    get:
+      operationId: getChargeback
+      summary: Get chargeback by ID
+      tags:
+      - Chargebacks
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Chargeback found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  payments:
+                    type: array
+                    items:
+                      type: object
+                  currency:
+                    type: string
+                  amount:
+                    type: number
+                    format: float
+                  coverage_applied:
+                    type: boolean
+                  coverage_elegible:
+                    type: boolean
+                  documentation_required:
+                    type: boolean
+                  documentation_status:
+                    type: string
+                    enum:
+                    - valid
+                    - invalid
+                    - not_supplied
+                  documentation:
+                    type: object
+                  date_documentation_deadline:
+                    type: string
+                    format: date-time
+                  date_created:
+                    type: string
+                    format: date-time
+                  date_last_updated:
+                    type: string
+                    format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateChargeback
+      summary: Upload chargeback documentation
+      tags:
+      - Chargebacks
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      url:
+                        type: string
+                        format: uri
+      responses:
+        '200':
+          description: Chargeback updated
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Access token. Send in Authorization header only — never as a URL query parameter.
+    publicKey:
+      type: apiKey
+      in: header
+      name: X-Public-Key
+      description: Public key for client-side card tokenization via MercadoPago.js only. Never use for server-side calls.
+    mercadopagoOAuth:
+      type: oauth2
+      description: OAuth 2.0 authorization_code flow for marketplace on-behalf-of and Wallet Connect integrations. For client_credentials
+        and refresh_token, use POST /oauth/token directly with the appropriate grant_type.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.mercadopago.com/authorization
+          tokenUrl: https://api.mercadopago.com/oauth/token
+          scopes:
+            read: Read access to account data
+            write: Write access (create payments, orders)
+            offline_access: Issue refresh tokens for long-lived access
+  responses:
+    BadRequest:
+      description: Bad request — validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or invalid access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntity:
+      description: Business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequests:
+      description: Rate limit exceeded — wait before retrying
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying this request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 429
+            error: too_many_requests
+            message: Rate limit exceeded. Retry after the indicated number of seconds.
+  schemas: {}

@@ -1,0 +1,141 @@
+name: Push to devsite-docs
+
+# Triggered when spec3.yaml lands on main (auto-merge from bot PR).
+#
+# Full flow:
+#   spec3.yaml merges to main
+#     → Step 1: bundle.py --sites-only
+#               Regenera by-site/{MLA,MLB,MLM,MLC,MCO,MPE,MLU}/spec3.yaml
+#               aplicando los overlays por país sobre el spec3.yaml actualizado
+#     → Step 2: Commit + push by-site changes to main (si hay diferencias)
+#     → Step 3: Detecta qué apps cambiaron
+#     → Step 4: push_to_devsite.py por cada app → branch en devsite-docs
+#     → pr-on-push.yml en devsite-docs auto-crea el PR
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - spec3.yaml
+
+jobs:
+  push-to-devsite:
+    name: spec3.yaml → devsite-docs api-json
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to push by-site changes back to openapi
+      pull-requests: write
+
+    steps:
+      - name: Checkout openapi
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 2      # need HEAD~1 to diff
+          token: ${{ secrets.GH_PAT }}
+          path: openapi
+
+      - name: Checkout devsite-docs
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          repository: melisource/fury_devsite-docs
+          token: ${{ secrets.GH_PAT }}
+          path: devsite-docs
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Configure git identity
+        run: |
+          git -C openapi config user.name  "specbot"
+          git -C openapi config user.email "specbot@mercadolibre.com"
+          git -C devsite-docs config user.name  "specbot"
+          git -C devsite-docs config user.email "specbot@mercadolibre.com"
+
+      # ── Step 1: Regenerar by-site specs ─────────────────────────────────────
+      # bundle.py Phase 2: aplica overlays sobre spec3.yaml actualizado
+      # y regenera by-site/{MLA,MLB,MLM,MLC,MCO,MPE,MLU}/spec3.yaml
+      - name: Regenerate by-site specs
+        run: python openapi/scripts/bundle.py --sites-only
+        working-directory: ${{ github.workspace }}
+
+      - name: Commit by-site changes to openapi main
+        run: |
+          cd openapi
+          if git diff --quiet by-site/; then
+            echo "No by-site changes to commit."
+          else
+            git add by-site/
+            git commit -m "chore(by-site): regenerate country specs from updated spec3.yaml"
+            git push origin main
+            echo "by-site specs pushed to main."
+          fi
+
+      - name: Detect changed apps from spec3.yaml diff
+        id: apps
+        run: |
+          python3 - <<'EOF'
+          import subprocess, yaml, os, json
+
+          # Paths that changed in this push
+          result = subprocess.run(
+              ["git", "diff", "HEAD~1", "HEAD", "--", "spec3.yaml"],
+              cwd="openapi", capture_output=True, text=True
+          )
+          diff_text = result.stdout
+
+          # Extract added/changed path keys from the diff
+          changed_paths = set()
+          for line in diff_text.splitlines():
+              if not line.startswith("+") or line.startswith("+++"):
+                  continue
+              # Match lines like:   /v1/payments:  or   /checkout/preferences:
+              stripped = line.lstrip("+").strip()
+              if stripped.startswith("/") and stripped.endswith(":"):
+                  changed_paths.add(stripped.rstrip(":"))
+
+          # Map changed paths to app names via apps.yaml
+          with open("openapi/apps.yaml") as f:
+              config = yaml.safe_load(f)
+
+          changed_apps = []
+          for app in config.get("apps", []):
+              app_paths = app.get("paths", [])
+              if any(cp.startswith(p) for cp in changed_paths for p in app_paths):
+                  changed_apps.append(app["fury_app"])
+
+          # If we can't detect specifics (e.g. schema-only change), sync all
+          if not changed_apps:
+              changed_apps = [a["fury_app"] for a in config.get("apps", [])]
+
+          # Write to GITHUB_OUTPUT
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"apps={','.join(changed_apps)}\n")
+              f.write(f"count={len(changed_apps)}\n")
+
+          print(f"Apps to sync: {changed_apps}")
+          EOF
+
+      - name: Sync each app to devsite-docs
+        run: |
+          IFS=',' read -ra APPS <<< "${{ steps.apps.outputs.apps }}"
+          for APP in "${APPS[@]}"; do
+            echo "────────────────────────────────────────"
+            echo "Syncing app: $APP"
+            echo "────────────────────────────────────────"
+            python3 openapi/scripts/push_to_devsite.py \
+              --app "$APP" \
+              --devsite-path devsite-docs \
+              --openapi-path openapi
+          done
+        # Each push_to_devsite.py call:
+        #   1. Reads openapi/spec3.yaml scoped to the app's paths
+        #   2. Updates devsite-docs/reference/api-json/{app}.json
+        #   3. Creates branch: enhancement/automatic-spec-{app}/{app}-{hash}
+        #   4. Pushes to devsite-docs
+        #   → pr-on-push.yml in devsite-docs auto-creates the PR

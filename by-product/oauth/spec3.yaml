@@ -1,0 +1,312 @@
+openapi: 3.1.0
+info:
+  title: MercadoPago API
+  description: The MercadoPago REST API. Please see https://www.mercadopago.com/developers for more details.
+  termsOfService: https://www.mercadopago.com/developers/es/docs/resources/legal/terms-and-conditions
+  contact:
+    name: MercadoPago Developer Experience
+    url: https://www.mercadopago.com/developers
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+servers:
+- url: https://api.mercadopago.com
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: OAuth
+  description: Authorization flows for marketplace on-behalf-of and Wallet Connect
+  x-mp-sites: &id001
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: Preferences
+  description: Checkout Pro — redirect-based hosted checkout via Preferences
+  x-mp-sites: *id001
+- name: Payments
+  description: Create and manage payment transactions
+  x-mp-sites: *id001
+- name: Orders
+  description: Checkout API via Orders — recommended for new custom checkout integrations
+  x-mp-sites: *id001
+- name: Merchant Orders
+  description: Order containers that group payments for a single purchase
+  x-mp-sites: *id001
+- name: Customers
+  description: Customer profiles and stored payment methods
+  x-mp-sites: *id001
+- name: Cards
+  description: Saved cards and card tokenization
+  x-mp-sites: *id001
+- name: Addresses
+  description: Customer shipping and billing addresses
+  x-mp-sites: *id001
+- name: Payment Methods
+  description: Available payment methods and installment plans per country
+  x-mp-sites: *id001
+- name: Identification Types
+  description: Country-specific identity document type catalog
+  x-mp-sites: *id001
+- name: Cancellations & Refunds
+  description: Cancel payments and create full or partial refunds
+  x-mp-sites: *id001
+- name: Chargebacks
+  description: Chargeback dispute management
+  x-mp-sites: *id001
+- name: Subscriptions
+  description: Recurring payment subscriptions
+  x-mp-sites: *id001
+- name: Plans
+  description: Subscription billing plans
+  x-mp-sites: *id001
+- name: Invoices
+  description: Subscription billing invoices
+  x-mp-sites: *id001
+- name: Wallet Connect
+  description: OAuth-based wallet agreement flows for Wallet Connect
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: Stores
+  description: Physical store locations
+  x-mp-sites: *id001
+- name: POS
+  description: Point of sale device management
+  x-mp-sites: *id001
+- name: Terminals
+  description: Point hardware terminal management and print actions
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MLM
+- name: Point Deprecated
+  description: Deprecated Point integration APIs — use Terminals and Point Orders instead
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: QR Orders
+  description: In-store payment orders associated with QR codes
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: QR Integrator
+  description: Integrator configuration for QR in-store
+  x-mp-sites: *id001
+- name: QR Deprecated
+  description: Deprecated in-store QR order endpoints (V1, V2, Dynamic QR)
+  x-mp-sites: *id001
+- name: Claims
+  description: Post-sale claim details and search
+  x-mp-sites: *id001
+- name: Claim Messages
+  description: Messages and file attachments within a claim
+  x-mp-sites: *id001
+- name: Claim Resolutions
+  description: Mediation requests and expected resolutions
+  x-mp-sites: *id001
+- name: Claim Shipping
+  description: Upload shipping evidence to support a claim
+  x-mp-sites: *id001
+- name: Releases Report
+  description: Generate and schedule releases (settlement) reports
+  x-mp-sites: *id001
+- name: Settlements Report
+  description: Generate and schedule all-transactions reports
+  x-mp-sites: *id001
+- name: Payouts
+  description: Bank transfer and Pix payouts
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+paths:
+  /oauth/token:
+    post:
+      operationId: createOAuthToken
+      summary: Create OAuth token
+      description: 'Exchanges authorization codes for access tokens, refreshes expired tokens, or requests client credentials
+        tokens for machine-to-machine flows.
+
+        **Security notes:** - The `state` parameter is mandatory for authorization_code flows to prevent CSRF. - Store refresh
+        tokens in server-side encrypted storage — never in localStorage. - Rotate `client_secret` regularly and store in a
+        secrets manager.'
+      tags:
+      - OAuth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - client_id
+              - client_secret
+              - grant_type
+              properties:
+                client_id:
+                  type: string
+                  description: Your application's client ID
+                client_secret:
+                  type: string
+                  description: Your application's client secret. Never expose in client-side code. Store in a secrets manager.
+                grant_type:
+                  type: string
+                  enum:
+                  - authorization_code
+                  - refresh_token
+                  - client_credentials
+                  description: OAuth 2.0 grant type
+                code:
+                  type: string
+                  description: Authorization code from the OAuth redirect (authorization_code flow)
+                redirect_uri:
+                  type: string
+                  format: uri
+                  description: Must match the registered redirect URI exactly
+                code_verifier:
+                  type: string
+                  description: PKCE code verifier (recommended for mobile/SPA)
+                refresh_token:
+                  type: string
+                  description: Refresh token for the refresh_token grant
+            examples:
+              authorization_code:
+                summary: Exchange authorization code for tokens
+                value:
+                  client_id: '1234567890'
+                  client_secret: YOUR_CLIENT_SECRET
+                  grant_type: authorization_code
+                  code: TG-abc123def456
+                  redirect_uri: https://myapp.com/oauth/callback
+              refresh_token:
+                summary: Refresh an expired access token
+                value:
+                  client_id: '1234567890'
+                  client_secret: YOUR_CLIENT_SECRET
+                  grant_type: refresh_token
+                  refresh_token: TG-refresh-token-here
+      responses:
+        '200':
+          description: Tokens issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: Bearer access token for API calls
+                    example: APP_USR-1234-mmdd-abcd-xxxxxxxxxxxx
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_in:
+                    type: integer
+                    description: Access token TTL in seconds
+                    example: 15552000
+                  scope:
+                    type: string
+                    example: offline_access read write
+                  refresh_token:
+                    type: string
+                    description: Long-lived token to refresh access_token
+                  user_id:
+                    type: integer
+                    description: MP user ID of the authorized user
+                  public_key:
+                    type: string
+                    description: Public key for client-side card tokenization
+                  live_mode:
+                    type: boolean
+                    description: true = production token.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Access token. Send in Authorization header only — never as a URL query parameter.
+    publicKey:
+      type: apiKey
+      in: header
+      name: X-Public-Key
+      description: Public key for client-side card tokenization via MercadoPago.js only. Never use for server-side calls.
+    mercadopagoOAuth:
+      type: oauth2
+      description: OAuth 2.0 authorization_code flow for marketplace on-behalf-of and Wallet Connect integrations. For client_credentials
+        and refresh_token, use POST /oauth/token directly with the appropriate grant_type.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.mercadopago.com/authorization
+          tokenUrl: https://api.mercadopago.com/oauth/token
+          scopes:
+            read: Read access to account data
+            write: Write access (create payments, orders)
+            offline_access: Issue refresh tokens for long-lived access
+  responses:
+    BadRequest:
+      description: Bad request — validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or invalid access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntity:
+      description: Business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequests:
+      description: Rate limit exceeded — wait before retrying
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying this request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 429
+            error: too_many_requests
+            message: Rate limit exceeded. Retry after the indicated number of seconds.
+  schemas: {}

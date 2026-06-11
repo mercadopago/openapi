@@ -1,0 +1,515 @@
+openapi: 3.1.0
+info:
+  title: MercadoPago API
+  description: The MercadoPago REST API. Please see https://www.mercadopago.com/developers for more details.
+  termsOfService: https://www.mercadopago.com/developers/es/docs/resources/legal/terms-and-conditions
+  contact:
+    name: MercadoPago Developer Experience
+    url: https://www.mercadopago.com/developers
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+servers:
+- url: https://api.mercadopago.com
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: OAuth
+  description: Authorization flows for marketplace on-behalf-of and Wallet Connect
+  x-mp-sites: &id001
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: Preferences
+  description: Checkout Pro — redirect-based hosted checkout via Preferences
+  x-mp-sites: *id001
+- name: Payments
+  description: Create and manage payment transactions
+  x-mp-sites: *id001
+- name: Orders
+  description: Checkout API via Orders — recommended for new custom checkout integrations
+  x-mp-sites: *id001
+- name: Merchant Orders
+  description: Order containers that group payments for a single purchase
+  x-mp-sites: *id001
+- name: Customers
+  description: Customer profiles and stored payment methods
+  x-mp-sites: *id001
+- name: Cards
+  description: Saved cards and card tokenization
+  x-mp-sites: *id001
+- name: Addresses
+  description: Customer shipping and billing addresses
+  x-mp-sites: *id001
+- name: Payment Methods
+  description: Available payment methods and installment plans per country
+  x-mp-sites: *id001
+- name: Identification Types
+  description: Country-specific identity document type catalog
+  x-mp-sites: *id001
+- name: Cancellations & Refunds
+  description: Cancel payments and create full or partial refunds
+  x-mp-sites: *id001
+- name: Chargebacks
+  description: Chargeback dispute management
+  x-mp-sites: *id001
+- name: Subscriptions
+  description: Recurring payment subscriptions
+  x-mp-sites: *id001
+- name: Plans
+  description: Subscription billing plans
+  x-mp-sites: *id001
+- name: Invoices
+  description: Subscription billing invoices
+  x-mp-sites: *id001
+- name: Wallet Connect
+  description: OAuth-based wallet agreement flows for Wallet Connect
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: Stores
+  description: Physical store locations
+  x-mp-sites: *id001
+- name: POS
+  description: Point of sale device management
+  x-mp-sites: *id001
+- name: Terminals
+  description: Point hardware terminal management and print actions
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MLM
+- name: Point Deprecated
+  description: Deprecated Point integration APIs — use Terminals and Point Orders instead
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: QR Orders
+  description: In-store payment orders associated with QR codes
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: QR Integrator
+  description: Integrator configuration for QR in-store
+  x-mp-sites: *id001
+- name: QR Deprecated
+  description: Deprecated in-store QR order endpoints (V1, V2, Dynamic QR)
+  x-mp-sites: *id001
+- name: Claims
+  description: Post-sale claim details and search
+  x-mp-sites: *id001
+- name: Claim Messages
+  description: Messages and file attachments within a claim
+  x-mp-sites: *id001
+- name: Claim Resolutions
+  description: Mediation requests and expected resolutions
+  x-mp-sites: *id001
+- name: Claim Shipping
+  description: Upload shipping evidence to support a claim
+  x-mp-sites: *id001
+- name: Releases Report
+  description: Generate and schedule releases (settlement) reports
+  x-mp-sites: *id001
+- name: Settlements Report
+  description: Generate and schedule all-transactions reports
+  x-mp-sites: *id001
+- name: Payouts
+  description: Bank transfer and Pix payouts
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+paths:
+  /merchant_orders:
+    post:
+      operationId: createMerchantOrder
+      summary: Create a merchant order
+      tags:
+      - Merchant Orders
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: &id003
+              type: object
+              properties:
+                external_reference:
+                  type: string
+                preference_id:
+                  type: string
+                marketplace:
+                  type: string
+                notification_url:
+                  type: string
+                  format: uri
+                  deprecated: true
+                sponsor_id:
+                  type: integer
+                payer:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    email:
+                      type: string
+                      format: email
+                site_id:
+                  type: string
+                  enum:
+                  - MLA
+                  - MLB
+                  - MLM
+                  - MLC
+                  - MCO
+                  - MPE
+                  - MLU
+                items:
+                  type: array
+                  items:
+                    type: object
+                additional_info:
+                  type: string
+                application_id:
+                  type: string
+      responses:
+        '201':
+          description: Merchant order created
+          content:
+            application/json:
+              schema: &id002
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - opened
+                    - closed
+                    - expired
+                  order_status:
+                    type: string
+                    enum:
+                    - payment_required
+                    - payment_in_process
+                    - paid
+                    - partially_paid
+                    - partially_refunded
+                    - pending_cancel
+                    - cancelled
+                    - refunded
+                  external_reference:
+                    type: string
+                  preference_id:
+                    type: string
+                  marketplace:
+                    type: string
+                  application_id:
+                    type: string
+                  site_id:
+                    type: string
+                    enum:
+                    - MLA
+                    - MLB
+                    - MLM
+                    - MLC
+                    - MCO
+                    - MPE
+                    - MLU
+                  notification_url:
+                    type: string
+                    format: uri
+                    deprecated: true
+                  sponsor_id:
+                    type: integer
+                  collector:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      nickname:
+                        type: string
+                  payer:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      nickname:
+                        type: string
+                  payments:
+                    type: array
+                    items:
+                      type: object
+                  shipments:
+                    type: array
+                    items:
+                      type: object
+                  payouts:
+                    type: array
+                    items:
+                      type: object
+                  items:
+                    type: array
+                    items:
+                      type: object
+                  additional_info:
+                    type: string
+                  shipping_cost:
+                    type: number
+                    format: float
+                  total_amount:
+                    type: number
+                    format: float
+                  paid_amount:
+                    type: number
+                    format: float
+                  refunded_amount:
+                    type: number
+                    format: float
+                  date_created:
+                    type: string
+                    format: date-time
+                  last_updated:
+                    type: string
+                    format: date-time
+                  canceled:
+                    type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      description: '**Webhook events triggered:** merchant_order'
+  /merchant_orders/{id}:
+    get:
+      operationId: getMerchantOrder
+      summary: Get merchant order
+      tags:
+      - Merchant Orders
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Merchant order found
+          content:
+            application/json:
+              schema: *id002
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      operationId: updateMerchantOrder
+      summary: Update merchant order
+      tags:
+      - Merchant Orders
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id003
+      responses:
+        '200':
+          description: Merchant order updated
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /merchant_orders/search:
+    get:
+      operationId: searchMerchantOrders
+      summary: Search merchant orders
+      tags:
+      - Merchant Orders
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - opened
+          - closed
+          - expired
+      - name: preference_id
+        in: query
+        schema:
+          type: string
+      - name: application_id
+        in: query
+        schema:
+          type: string
+      - name: payer_id
+        in: query
+        schema:
+          type: integer
+      - name: sponsor_id
+        in: query
+        schema:
+          type: integer
+      - name: external_reference
+        in: query
+        schema:
+          type: string
+      - name: site_id
+        in: query
+        schema:
+          type: string
+          enum:
+          - MLA
+          - MLB
+          - MLM
+          - MLC
+          - MCO
+          - MPE
+          - MLU
+      - name: marketplace
+        in: query
+        schema:
+          type: string
+      - name: date_created_from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: date_created_to
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: last_updated_from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: last_updated_to
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 30
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema: *id002
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Access token. Send in Authorization header only — never as a URL query parameter.
+    publicKey:
+      type: apiKey
+      in: header
+      name: X-Public-Key
+      description: Public key for client-side card tokenization via MercadoPago.js only. Never use for server-side calls.
+    mercadopagoOAuth:
+      type: oauth2
+      description: OAuth 2.0 authorization_code flow for marketplace on-behalf-of and Wallet Connect integrations. For client_credentials
+        and refresh_token, use POST /oauth/token directly with the appropriate grant_type.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.mercadopago.com/authorization
+          tokenUrl: https://api.mercadopago.com/oauth/token
+          scopes:
+            read: Read access to account data
+            write: Write access (create payments, orders)
+            offline_access: Issue refresh tokens for long-lived access
+  responses:
+    BadRequest:
+      description: Bad request — validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or invalid access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntity:
+      description: Business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequests:
+      description: Rate limit exceeded — wait before retrying
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying this request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 429
+            error: too_many_requests
+            message: Rate limit exceeded. Retry after the indicated number of seconds.
+  schemas: {}

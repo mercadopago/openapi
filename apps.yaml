@@ -1,0 +1,81 @@
+# Pipeline configuration: Fury Spec Hub → openapi/spec3.yaml
+#
+# fury_app: exact app name registered in Fury Spec Hub
+# tag:      matching tag name in spec3.yaml (groups paths by product)
+# product:  product slug — used as subfolder in by-site/{SITE}/{product}/spec3.yaml
+# paths:    path prefixes owned by this app (scopes merges in both directions)
+
+apps:
+  - fury_app: payments
+    tag: Payments
+    product: payments
+    paths:
+      - /v1/payments
+      - /v1/payments/{id}
+      - /v1/payments/{id}/refunds
+
+  - fury_app: customers
+    tag: Customers
+    product: customers
+    paths:
+      - /v1/customers
+      - /v1/customers/{id}
+      - /v1/customers/{id}/cards
+      - /v1/customers/search
+
+  - fury_app: preferences
+    tag: Preferences
+    product: preferences
+    paths:
+      - /checkout/preferences
+      - /checkout/preferences/{id}
+
+  - fury_app: chargebacks
+    tag: Chargebacks
+    product: chargebacks
+    paths:
+      - /v1/chargebacks
+      - /v1/chargebacks/{id}
+
+  - fury_app: subscriptions
+    tag: Subscriptions
+    product: subscriptions
+    paths:
+      - /preapproval
+      - /preapproval/{id}
+      - /preapproval_plan
+      - /preapproval_plan/{id}
+
+  - fury_app: merchant_orders
+    tag: Merchant Orders
+    product: merchant_orders
+    paths:
+      - /merchant_orders
+      - /merchant_orders/{id}
+
+  - fury_app: oauth
+    tag: OAuth
+    product: oauth
+    paths:
+      - /oauth/token
+
+  - fury_app: payment_methods
+    tag: Payment Methods
+    product: payment_methods
+    paths:
+      - /v1/payment_methods
+      - /v1/payment_methods/installments
+
+  - fury_app: stores
+    tag: Stores
+    product: stores
+    paths:
+      - /users/{user_id}/stores
+      - /users/{user_id}/stores/{store_id}
+
+  - fury_app: pos
+    tag: POS
+    product: pos
+    paths:
+      - /pos
+      - /pos/{id}

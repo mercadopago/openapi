@@ -1,0 +1,896 @@
+openapi: 3.1.0
+info:
+  title: MercadoPago API
+  description: The MercadoPago REST API. Please see https://www.mercadopago.com/developers for more details.
+  termsOfService: https://www.mercadopago.com/developers/es/docs/resources/legal/terms-and-conditions
+  contact:
+    name: MercadoPago Developer Experience
+    url: https://www.mercadopago.com/developers
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+servers:
+- url: https://api.mercadopago.com
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: OAuth
+  description: Authorization flows for marketplace on-behalf-of and Wallet Connect
+  x-mp-sites: &id001
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: Preferences
+  description: Checkout Pro — redirect-based hosted checkout via Preferences
+  x-mp-sites: *id001
+- name: Payments
+  description: Create and manage payment transactions
+  x-mp-sites: *id001
+- name: Orders
+  description: Checkout API via Orders — recommended for new custom checkout integrations
+  x-mp-sites: *id001
+- name: Merchant Orders
+  description: Order containers that group payments for a single purchase
+  x-mp-sites: *id001
+- name: Customers
+  description: Customer profiles and stored payment methods
+  x-mp-sites: *id001
+- name: Cards
+  description: Saved cards and card tokenization
+  x-mp-sites: *id001
+- name: Addresses
+  description: Customer shipping and billing addresses
+  x-mp-sites: *id001
+- name: Payment Methods
+  description: Available payment methods and installment plans per country
+  x-mp-sites: *id001
+- name: Identification Types
+  description: Country-specific identity document type catalog
+  x-mp-sites: *id001
+- name: Cancellations & Refunds
+  description: Cancel payments and create full or partial refunds
+  x-mp-sites: *id001
+- name: Chargebacks
+  description: Chargeback dispute management
+  x-mp-sites: *id001
+- name: Subscriptions
+  description: Recurring payment subscriptions
+  x-mp-sites: *id001
+- name: Plans
+  description: Subscription billing plans
+  x-mp-sites: *id001
+- name: Invoices
+  description: Subscription billing invoices
+  x-mp-sites: *id001
+- name: Wallet Connect
+  description: OAuth-based wallet agreement flows for Wallet Connect
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: Stores
+  description: Physical store locations
+  x-mp-sites: *id001
+- name: POS
+  description: Point of sale device management
+  x-mp-sites: *id001
+- name: Terminals
+  description: Point hardware terminal management and print actions
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MLM
+- name: Point Deprecated
+  description: Deprecated Point integration APIs — use Terminals and Point Orders instead
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: QR Orders
+  description: In-store payment orders associated with QR codes
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: QR Integrator
+  description: Integrator configuration for QR in-store
+  x-mp-sites: *id001
+- name: QR Deprecated
+  description: Deprecated in-store QR order endpoints (V1, V2, Dynamic QR)
+  x-mp-sites: *id001
+- name: Claims
+  description: Post-sale claim details and search
+  x-mp-sites: *id001
+- name: Claim Messages
+  description: Messages and file attachments within a claim
+  x-mp-sites: *id001
+- name: Claim Resolutions
+  description: Mediation requests and expected resolutions
+  x-mp-sites: *id001
+- name: Claim Shipping
+  description: Upload shipping evidence to support a claim
+  x-mp-sites: *id001
+- name: Releases Report
+  description: Generate and schedule releases (settlement) reports
+  x-mp-sites: *id001
+- name: Settlements Report
+  description: Generate and schedule all-transactions reports
+  x-mp-sites: *id001
+- name: Payouts
+  description: Bank transfer and Pix payouts
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+paths:
+  /v1/customers:
+    post:
+      operationId: createCustomer
+      summary: Create a customer
+      description: Creates a customer profile for storing payment methods. The customer email is unique per account.
+      tags:
+      - Customers
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/customers/search:
+    get:
+      operationId: searchCustomers
+      summary: Search customers
+      tags:
+      - Customers
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: email
+        in: query
+        schema:
+          type: string
+          format: email
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 30
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerSearchResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/customers/{id}:
+    get:
+      operationId: getCustomer
+      summary: Get customer by ID
+      tags:
+      - Customers
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      operationId: updateCustomer
+      summary: Update a customer
+      tags:
+      - Customers
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '200':
+          description: Customer updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/customers/{customer_id}/cards:
+    post:
+      operationId: saveCard
+      summary: Save a card to a customer
+      description: 'Saves a tokenized card to a customer profile for future payments. The token must be created client-side
+        via MercadoPago.js. Raw card data must never pass through your server.
+
+        **PCI scope:** Handling this endpoint brings your integration into PCI DSS scope.'
+      tags:
+      - Cards
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveCardRequest'
+      responses:
+        '201':
+          description: Card saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      operationId: listCards
+      summary: List customer cards
+      tags:
+      - Cards
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Card list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/customers/{customer_id}/cards/{id}:
+    get:
+      operationId: getCard
+      summary: Get a saved card
+      tags:
+      - Cards
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Card found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      operationId: updateCard
+      summary: Update a saved card
+      tags:
+      - Cards
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCardRequest'
+      responses:
+        '200':
+          description: Card updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteCard
+      summary: Delete a saved card
+      tags:
+      - Cards
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Card deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/customers/{id}/delete:
+    delete:
+      operationId: deleteCustomer
+      summary: Delete a customer
+      description: Permanently deletes a customer profile. This action cannot be undone. Saved cards associated with the customer
+        will also be removed.
+      tags:
+      - Customers
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Customer ID to delete
+      responses:
+        '200':
+          description: Customer deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/customers/{customer_id}/addresses:
+    post:
+      operationId: createCustomerAddress
+      summary: Create a customer address
+      description: Adds a shipping or billing address to a customer profile.
+      tags:
+      - Addresses
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+            example:
+              zip_code: 01310-100
+              street_name: Av. Paulista
+              street_number: '1000'
+              city: São Paulo
+              state: SP
+      responses:
+        '201':
+          description: Address created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+    get:
+      operationId: listCustomerAddresses
+      summary: List customer addresses
+      tags:
+      - Addresses
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Address list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Address'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/customers/{customer_id}/addresses/{address_id}:
+    get:
+      operationId: getCustomerAddress
+      summary: Get a customer address
+      tags:
+      - Addresses
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: address_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Address found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateCustomerAddress
+      summary: Update a customer address
+      tags:
+      - Addresses
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: address_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        '200':
+          description: Address updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteCustomerAddress
+      summary: Delete a customer address
+      tags:
+      - Addresses
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: address_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Address deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Access token. Send in Authorization header only — never as a URL query parameter.
+    publicKey:
+      type: apiKey
+      in: header
+      name: X-Public-Key
+      description: Public key for client-side card tokenization via MercadoPago.js only. Never use for server-side calls.
+    mercadopagoOAuth:
+      type: oauth2
+      description: OAuth 2.0 authorization_code flow for marketplace on-behalf-of and Wallet Connect integrations. For client_credentials
+        and refresh_token, use POST /oauth/token directly with the appropriate grant_type.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.mercadopago.com/authorization
+          tokenUrl: https://api.mercadopago.com/oauth/token
+          scopes:
+            read: Read access to account data
+            write: Write access (create payments, orders)
+            offline_access: Issue refresh tokens for long-lived access
+  responses:
+    BadRequest:
+      description: Bad request — validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or invalid access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntity:
+      description: Business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequests:
+      description: Rate limit exceeded — wait before retrying
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying this request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 429
+            error: too_many_requests
+            message: Rate limit exceeded. Retry after the indicated number of seconds.
+  schemas:
+    Identification:
+      type: object
+      description: Payer identification document. Valid types vary by country.
+      properties:
+        type:
+          type: string
+          description: Identification type (e.g., CPF, CNPJ for Brazil; DNI for Argentina; RFC for Mexico)
+          example: CPF
+        number:
+          type: string
+          description: Identification number (no formatting — digits only)
+          example: '12345678909'
+    Phone:
+      type: object
+      properties:
+        area_code:
+          type: string
+          example: '11'
+        number:
+          type: string
+          example: '987654321'
+    Address:
+      type: object
+      properties:
+        zip_code:
+          type: string
+          example: 01310-100
+        street_name:
+          type: string
+          example: Av. Paulista
+        street_number:
+          type: string
+          example: '1000'
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+    Pagination:
+      type: object
+      description: Pagination metadata returned in list/search responses
+      properties:
+        total:
+          type: integer
+          description: Total number of results
+          example: 42
+        limit:
+          type: integer
+          description: Results per page
+          example: 30
+        offset:
+          type: integer
+          description: Offset of the current page
+          example: 0
+    CustomerRequest:
+      type: object
+      description: Request body to create or update a customer
+      properties:
+        email:
+          type: string
+          format: email
+          description: Customer email address (unique identifier)
+          example: customer@example.com
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          $ref: '#/components/schemas/Phone'
+        identification:
+          $ref: '#/components/schemas/Identification'
+        address:
+          $ref: '#/components/schemas/Address'
+        description:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+    Customer:
+      type: object
+      description: A stored MercadoPago customer
+      properties:
+        id:
+          type: string
+          description: Customer unique identifier
+          example: 123456789-abcd
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          $ref: '#/components/schemas/Phone'
+        identification:
+          $ref: '#/components/schemas/Identification'
+        address:
+          $ref: '#/components/schemas/Address'
+        date_registered:
+          type: string
+          format: date-time
+        date_created:
+          type: string
+          format: date-time
+        date_last_updated:
+          type: string
+          format: date-time
+        description:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+          description: Saved cards for this customer
+        default_card:
+          type: string
+          description: ID of the customer's default card
+    CustomerSearchResult:
+      type: object
+      properties:
+        paging:
+          $ref: '#/components/schemas/Pagination'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+    SaveCardRequest:
+      type: object
+      required:
+      - token
+      description: Request body to save a card to a customer. The card token must be created client-side via MercadoPago.js
+        / MP Secure Fields before calling this endpoint. Raw card data (PAN, CVV) must never be sent to your server.
+      properties:
+        token:
+          type: string
+          description: Single-use card token from MercadoPago.js
+          example: YOUR_ACCESS_TOKEN
+    Card:
+      type: object
+      description: A tokenized card saved to a customer (never contains full PAN or CVV)
+      properties:
+        id:
+          type: string
+          description: Card unique identifier
+          example: '1234567890'
+        customer_id:
+          type: string
+        first_six_digits:
+          type: string
+          description: First 6 digits of card (BIN — identifies issuer and type)
+          example: '411111'
+        last_four_digits:
+          type: string
+          description: Last 4 digits of card
+          example: '4321'
+        expiration_month:
+          type: integer
+          minimum: 1
+          maximum: 12
+          example: 12
+        expiration_year:
+          type: integer
+          example: 2028
+        date_created:
+          type: string
+          format: date-time
+        date_last_updated:
+          type: string
+          format: date-time
+        cardholder:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name on card
+            identification:
+              $ref: '#/components/schemas/Identification'
+        payment_method:
+          type: object
+          properties:
+            id:
+              type: string
+              example: visa
+            name:
+              type: string
+              example: Visa
+            payment_type_id:
+              type: string
+              example: credit_card
+            thumbnail:
+              type: string
+              format: uri
+        issuer:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        security_code:
+          type: object
+          properties:
+            mode:
+              type: string
+              enum:
+              - mandatory
+              - optional
+            length:
+              type: integer
+              example: 3
+    UpdateCardRequest:
+      type: object
+      description: Request body to update a saved card's expiry or cardholder data.
+      properties:
+        expiration_month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        expiration_year:
+          type: integer
+        cardholder:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name as it appears on the card.
+            identification:
+              $ref: '#/components/schemas/Identification'

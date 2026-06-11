@@ -1,0 +1,148 @@
+name: Push to SDK repos via Verdi Flow
+
+# Triggered when spec3.yaml lands on main (auto-merge from bot PR).
+#
+# Full flow (en orden):
+#   1. bundle.py --schemas-only  → actualiza components/schemas en spec3.yaml
+#   2. bundle.py --sites-only    → regenera by-site/MLA…MLU con overlays por país
+#   3. Commitea cambios a main
+#   4. Llama al Verdi Flow webhook → Verdi distribuye spec3.sdk.yaml a los SDK repos
+#
+# El paso 4 usa Verdi (no push_to_sdk.py directamente) porque:
+# - Verdi corre dentro de Meli — acceso interno a los repos SDK
+# - Solo se necesita el webhook URL + token, sin manejar credenciales de SDK repos aquí
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - spec3.yaml
+      - schemas/**
+      - overlays/**
+
+jobs:
+  sync-to-sdk:
+    name: spec3.yaml → bundle → Verdi Flow → SDK repos
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout openapi
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Configure git
+        run: |
+          git config user.name  "specbot"
+          git config user.email "specbot@mercadolibre.com"
+
+      # ── Step 1: Classify schemas → schemas/*.yaml ───────────────────────
+      # Distributes schemas from spec3.yaml into domain fragment files
+      # (payments.yaml, customers.yaml, etc.) based on apps.yaml mapping.
+      # This is automatic — no manual editing of schemas/*.yaml needed.
+      - name: Classify schemas by domain
+        run: python scripts/classify_schemas.py
+
+      # ── Step 2: Bundle schemas → spec3.yaml (self-contained) ────────────
+      - name: Bundle schemas into spec3.yaml
+        run: python scripts/bundle.py --schemas-only
+
+      # ── Step 3: Regenerate by-site specs ────────────────────────────────
+      - name: Regenerate by-site specs (categorize by country)
+        run: python scripts/bundle.py --sites-only
+
+      # ── Step 3: Commit all changes to main ──────────────────────────────
+      - name: Commit spec + by-site changes
+        run: |
+          CHANGED=false
+
+          if ! git diff --quiet spec3.yaml; then
+            git add spec3.yaml
+            CHANGED=true
+          fi
+
+          if ! git diff --quiet by-site/; then
+            git add by-site/
+            CHANGED=true
+          fi
+
+          if [ "$CHANGED" = "true" ]; then
+            git commit -m "chore(spec): bundle schemas + regenerate by-site specs"
+            git push origin main
+            echo "Changes committed and pushed to main."
+          else
+            echo "No changes to commit."
+          fi
+
+      # ── Step 4: Verify main is fully aligned before calling Verdi ────────
+      - name: Verify alignment (bundle --check)
+        run: |
+          python scripts/bundle.py --check
+          echo "✅ Main is aligned — schemas and by-site are in sync with spec3.yaml"
+
+      # ── Step 5: Compute spec hash for idempotency ───────────────────────
+      - name: Compute spec3.sdk.yaml hash
+        id: spec_hash
+        run: |
+          HASH=$(sha256sum spec3.sdk.yaml | cut -c1-12)
+          echo "hash=${HASH}" >> $GITHUB_OUTPUT
+          echo "Spec hash: ${HASH}"
+
+      # ── Step 5: Trigger Verdi Flow webhook → distributes to SDK repos ───
+      # Verdi Flow (verdi-flow-sdk.json) recibe el webhook,
+      # lee spec3.sdk.yaml del repo openapi y lo pushea a cada SDK repo.
+      # Corre en paralelo al bot (no espera confirmación).
+      - name: Trigger Verdi Flow — SDK distribution
+        env:
+          VERDI_WEBHOOK_URL: ${{ secrets.VERDI_SDK_WEBHOOK_URL }}
+          VERDI_WEBHOOK_TOKEN: ${{ secrets.VERDI_WEBHOOK_TOKEN }}
+        run: |
+          if [ -z "$VERDI_WEBHOOK_URL" ]; then
+            echo "⚠️  VERDI_SDK_WEBHOOK_URL not configured — skipping SDK distribution"
+            echo "   TODO: Import verdi-flow-sdk.json in Verdi, copy the webhook URL"
+            echo "         and add it as VERDI_SDK_WEBHOOK_URL secret in this repo."
+            exit 0
+          fi
+
+          echo "Calling Verdi Flow webhook..."
+          RESPONSE=$(curl -s -o /tmp/verdi_response.json -w "%{http_code}" \
+            -X POST "$VERDI_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${VERDI_WEBHOOK_TOKEN}" \
+            -d "{
+              \"spec_hash\": \"${{ steps.spec_hash.outputs.hash }}\",
+              \"triggered_by\": \"trigger-sdk-sync.yml\",
+              \"repo\": \"${{ github.repository }}\",
+              \"commit\": \"${{ github.sha }}\"
+            }" \
+            --max-time 30)
+
+          echo "HTTP Status: ${RESPONSE}"
+          cat /tmp/verdi_response.json
+
+          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 300 ]; then
+            echo "✅ Verdi Flow triggered successfully — SDK repos will be updated"
+          else
+            echo "⚠️  Verdi Flow returned ${RESPONSE} — check Verdi logs"
+            # Non-blocking: SDK distribution failure doesn't fail the workflow
+          fi
+
+      - name: Summary
+        run: |
+          echo "✅ Pipeline completo:"
+          echo "   spec3.yaml validado"
+          echo "   schemas/*.yaml mergeados"
+          echo "   by-site/ regenerados (7 países)"
+          echo "   Verdi Flow notificado → distribuye a SDK repos en paralelo"

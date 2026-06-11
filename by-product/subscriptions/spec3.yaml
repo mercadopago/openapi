@@ -1,0 +1,856 @@
+openapi: 3.1.0
+info:
+  title: MercadoPago API
+  description: The MercadoPago REST API. Please see https://www.mercadopago.com/developers for more details.
+  termsOfService: https://www.mercadopago.com/developers/es/docs/resources/legal/terms-and-conditions
+  contact:
+    name: MercadoPago Developer Experience
+    url: https://www.mercadopago.com/developers
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+servers:
+- url: https://api.mercadopago.com
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: OAuth
+  description: Authorization flows for marketplace on-behalf-of and Wallet Connect
+  x-mp-sites: &id001
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: Preferences
+  description: Checkout Pro — redirect-based hosted checkout via Preferences
+  x-mp-sites: *id001
+- name: Payments
+  description: Create and manage payment transactions
+  x-mp-sites: *id001
+- name: Orders
+  description: Checkout API via Orders — recommended for new custom checkout integrations
+  x-mp-sites: *id001
+- name: Merchant Orders
+  description: Order containers that group payments for a single purchase
+  x-mp-sites: *id001
+- name: Customers
+  description: Customer profiles and stored payment methods
+  x-mp-sites: *id001
+- name: Cards
+  description: Saved cards and card tokenization
+  x-mp-sites: *id001
+- name: Addresses
+  description: Customer shipping and billing addresses
+  x-mp-sites: *id001
+- name: Payment Methods
+  description: Available payment methods and installment plans per country
+  x-mp-sites: *id001
+- name: Identification Types
+  description: Country-specific identity document type catalog
+  x-mp-sites: *id001
+- name: Cancellations & Refunds
+  description: Cancel payments and create full or partial refunds
+  x-mp-sites: *id001
+- name: Chargebacks
+  description: Chargeback dispute management
+  x-mp-sites: *id001
+- name: Subscriptions
+  description: Recurring payment subscriptions
+  x-mp-sites: *id001
+- name: Plans
+  description: Subscription billing plans
+  x-mp-sites: *id001
+- name: Invoices
+  description: Subscription billing invoices
+  x-mp-sites: *id001
+- name: Wallet Connect
+  description: OAuth-based wallet agreement flows for Wallet Connect
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: Stores
+  description: Physical store locations
+  x-mp-sites: *id001
+- name: POS
+  description: Point of sale device management
+  x-mp-sites: *id001
+- name: Terminals
+  description: Point hardware terminal management and print actions
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MLM
+- name: Point Deprecated
+  description: Deprecated Point integration APIs — use Terminals and Point Orders instead
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+- name: QR Orders
+  description: In-store payment orders associated with QR codes
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLC
+  - MCO
+  - MPE
+  - MLU
+- name: QR Integrator
+  description: Integrator configuration for QR in-store
+  x-mp-sites: *id001
+- name: QR Deprecated
+  description: Deprecated in-store QR order endpoints (V1, V2, Dynamic QR)
+  x-mp-sites: *id001
+- name: Claims
+  description: Post-sale claim details and search
+  x-mp-sites: *id001
+- name: Claim Messages
+  description: Messages and file attachments within a claim
+  x-mp-sites: *id001
+- name: Claim Resolutions
+  description: Mediation requests and expected resolutions
+  x-mp-sites: *id001
+- name: Claim Shipping
+  description: Upload shipping evidence to support a claim
+  x-mp-sites: *id001
+- name: Releases Report
+  description: Generate and schedule releases (settlement) reports
+  x-mp-sites: *id001
+- name: Settlements Report
+  description: Generate and schedule all-transactions reports
+  x-mp-sites: *id001
+- name: Payouts
+  description: Bank transfer and Pix payouts
+  x-mp-sites:
+  - MLA
+  - MLB
+  - MLM
+  - MLC
+paths:
+  /preapproval_plan:
+    post:
+      operationId: createSubscriptionPlan
+      summary: Create a subscription plan
+      description: Creates a recurring billing plan. Individual subscriptions reference this plan. The response includes `init_point`
+        to send subscribers to authorize billing.
+      tags:
+      - Plans
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlanRequest'
+            examples:
+              monthly_plan:
+                summary: Monthly plan — R$29.90
+                value:
+                  reason: Monthly Premium Subscription
+                  auto_recurring:
+                    frequency: 1
+                    frequency_type: months
+                    transaction_amount: 29.9
+                    currency_id: BRL
+      responses:
+        '201':
+          description: Plan created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlan'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  /preapproval_plan/{id}:
+    get:
+      operationId: getSubscriptionPlan
+      summary: Get subscription plan
+      tags:
+      - Plans
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Plan found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlan'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    put:
+      operationId: updateSubscriptionPlan
+      summary: Update a subscription plan
+      tags:
+      - Plans
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlanRequest'
+      responses:
+        '200':
+          description: Plan updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlan'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  /preapproval_plan/search:
+    get:
+      operationId: searchSubscriptionPlans
+      summary: Search subscription plans
+      tags:
+      - Plans
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - inactive
+      - name: q
+        in: query
+        schema:
+          type: string
+      - name: sort
+        in: query
+        schema:
+          type: string
+      - name: criteria
+        in: query
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 30
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionSearchResult'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+  /preapproval:
+    post:
+      operationId: createSubscription
+      summary: Create a subscription
+      tags:
+      - Subscriptions
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionRequest'
+      responses:
+        '201':
+          description: Subscription created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+  /preapproval/{id}:
+    get:
+      operationId: getSubscription
+      summary: Get subscription
+      tags:
+      - Subscriptions
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Subscription found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Bad request
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    put:
+      operationId: updateSubscription
+      summary: Update subscription
+      description: 'Update subscription status or billing details. Common use: `{"status": "paused"}` to pause, `{"status":
+        "authorized"}` to resume, `{"status": "cancelled"}` to cancel.'
+      tags:
+      - Subscriptions
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionUpdateRequest'
+      responses:
+        '200':
+          description: Subscription updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+  /preapproval/search:
+    get:
+      operationId: searchSubscriptions
+      summary: Search subscriptions
+      tags:
+      - Subscriptions
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
+      - name: payer_id
+        in: query
+        schema:
+          type: integer
+      - name: payer_email
+        in: query
+        schema:
+          type: string
+          format: email
+      - name: preapproval_plan_id
+        in: query
+        schema:
+          type: string
+      - name: transaction_amount
+        in: query
+        schema:
+          type: number
+      - name: semaphore
+        in: query
+        schema:
+          type: string
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - pending
+          - authorized
+          - paused
+          - cancelled
+      - name: sort
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 30
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionSearchResult'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+  /preapproval/export:
+    get:
+      operationId: exportSubscriptions
+      summary: Export subscriptions
+      description: Exports a list of subscriptions for a collector as a downloadable file. Filter by plan ID, status, and
+        sort order.
+      tags:
+      - Subscriptions
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: collector_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: Collector (seller) user ID
+      - name: preapproval_plan_id
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Filter by plan ID
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - pending
+          - authorized
+          - paused
+          - cancelled
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - date_created
+          - last_modified
+          default: date_created
+      responses:
+        '200':
+          description: Export file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Access token. Send in Authorization header only — never as a URL query parameter.
+    publicKey:
+      type: apiKey
+      in: header
+      name: X-Public-Key
+      description: Public key for client-side card tokenization via MercadoPago.js only. Never use for server-side calls.
+    mercadopagoOAuth:
+      type: oauth2
+      description: OAuth 2.0 authorization_code flow for marketplace on-behalf-of and Wallet Connect integrations. For client_credentials
+        and refresh_token, use POST /oauth/token directly with the appropriate grant_type.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.mercadopago.com/authorization
+          tokenUrl: https://api.mercadopago.com/oauth/token
+          scopes:
+            read: Read access to account data
+            write: Write access (create payments, orders)
+            offline_access: Issue refresh tokens for long-lived access
+  responses:
+    BadRequest:
+      description: Bad request — validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or invalid access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntity:
+      description: Business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequests:
+      description: Rate limit exceeded — wait before retrying
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying this request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 429
+            error: too_many_requests
+            message: Rate limit exceeded. Retry after the indicated number of seconds.
+  schemas:
+    CurrencyId:
+      type: string
+      description: ISO 4217 currency code for the applicable site
+      enum:
+      - ARS
+      - BRL
+      - MXN
+      - CLP
+      - COP
+      - PEN
+      - UYU
+      - BOB
+      - PYG
+      - USD
+      - CRC
+      - DOP
+      - HNL
+      - NIO
+      - GTQ
+      - VES
+      example: BRL
+    Pagination:
+      type: object
+      description: Pagination metadata returned in list/search responses
+      properties:
+        total:
+          type: integer
+          description: Total number of results
+          example: 42
+        limit:
+          type: integer
+          description: Results per page
+          example: 30
+        offset:
+          type: integer
+          description: Offset of the current page
+          example: 0
+    SubscriptionPlanRequest:
+      type: object
+      required:
+      - reason
+      - auto_recurring
+      description: Request body to create a subscription plan (preapproval_plan). A plan defines the recurring billing terms.
+        Individual subscriptions (preapproval) are then created referencing this plan.
+      properties:
+        reason:
+          type: string
+          description: Plan description shown to the payer
+          example: Monthly Premium Subscription
+        auto_recurring:
+          $ref: '#/components/schemas/AutoRecurring'
+        payment_methods_allowed:
+          type: object
+          properties:
+            payment_types:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+            payment_methods:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+        back_url:
+          type: string
+          format: uri
+          description: Redirect URL after subscription setup
+    AutoRecurring:
+      type: object
+      required:
+      - frequency
+      - frequency_type
+      - transaction_amount
+      - currency_id
+      properties:
+        frequency:
+          type: integer
+          description: Billing interval (e.g., 1 for monthly, 7 for weekly)
+          example: 1
+        frequency_type:
+          type: string
+          enum:
+          - months
+          - days
+          description: Unit for the billing interval
+          example: months
+        transaction_amount:
+          type: number
+          format: float
+          description: Amount to charge each cycle (decimal, not cents)
+          example: 29.9
+        currency_id:
+          $ref: '#/components/schemas/CurrencyId'
+        free_trial:
+          type: object
+          description: Optional free trial period before billing starts
+          properties:
+            frequency:
+              type: integer
+              example: 14
+            frequency_type:
+              type: string
+              enum:
+              - months
+              - days
+              example: days
+        repetitions:
+          type: integer
+          description: Total number of billing cycles (null = indefinite)
+          nullable: true
+    SubscriptionPlan:
+      type: object
+      description: A subscription plan (preapproval_plan)
+      properties:
+        id:
+          type: string
+          example: 2c9380847e9c5058017ea64ea8260b60
+        reason:
+          type: string
+        status:
+          type: string
+          enum:
+          - active
+          - inactive
+        auto_recurring:
+          $ref: '#/components/schemas/AutoRecurring'
+        date_created:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+        init_point:
+          type: string
+          format: uri
+          description: URL to subscribe users to this plan
+    SubscriptionRequest:
+      type: object
+      required:
+      - reason
+      - payer_email
+      - auto_recurring
+      description: Request body to create a subscription (preapproval). Either reference a preapproval_plan or define auto_recurring
+        inline.
+      properties:
+        preapproval_plan_id:
+          type: string
+          description: Reference a previously created plan (recommended)
+        reason:
+          type: string
+          description: Subscription description shown to payer
+          example: Monthly Premium — Acme Inc.
+        payer_email:
+          type: string
+          format: email
+          description: Payer's email address
+        card_token_id:
+          type: string
+          description: Card token for credit card subscriptions
+        auto_recurring:
+          $ref: '#/components/schemas/AutoRecurring'
+        back_url:
+          type: string
+          format: uri
+        external_reference:
+          type: string
+          example: CUSTOMER-ID-12345
+        status:
+          type: string
+          enum:
+          - pending
+          - authorized
+          - paused
+          - cancelled
+          description: Initial status (default is pending until payer authorizes)
+    Subscription:
+      type: object
+      description: A MercadoPago subscription (preapproval)
+      properties:
+        id:
+          type: string
+          example: 2c9380847e9c5058017ea64ea8260b60
+        payer_id:
+          type: integer
+        payer_email:
+          type: string
+          format: email
+        preapproval_plan_id:
+          type: string
+        reason:
+          type: string
+        external_reference:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - authorized
+          - paused
+          - cancelled
+        date_created:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+        auto_recurring:
+          $ref: '#/components/schemas/AutoRecurring'
+        summarized:
+          type: object
+          description: Subscription billing summary
+          properties:
+            quotas:
+              type: integer
+            charged_quantity:
+              type: integer
+            pending_charge_quantity:
+              type: integer
+            charged_amount:
+              type: number
+              format: float
+            pending_charge_amount:
+              type: number
+              format: float
+        next_payment_date:
+          type: string
+          format: date-time
+        payment_method_id:
+          type: string
+        card_id:
+          type: integer
+        init_point:
+          type: string
+          format: uri
+          description: Authorization URL — send payer here to confirm subscription
+    SubscriptionSearchResult:
+      type: object
+      properties:
+        paging:
+          $ref: '#/components/schemas/Pagination'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+    SubscriptionUpdateRequest:
+      type: object
+      description: Request body to update a subscription.
+      properties:
+        reason:
+          type: string
+        external_reference:
+          type: string
+        back_url:
+          type: string
+          format: uri
+        auto_recurring:
+          $ref: '#/components/schemas/AutoRecurring'
+        card_token_id:
+          type: string
+          description: New card token to update the payment method.
+        card_token_id_secondary:
+          type: string
+          description: Token for secondary/fallback payment method card.
+        payment_method_id_secondary:
+          type: string
+          description: Secondary payment method identifier for fallback charges.
+        status:
+          type: string
+          enum:
+          - pending
+          - authorized
+          - paused
+          - cancelled
