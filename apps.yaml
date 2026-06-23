@@ -14,7 +14,7 @@ apps:
       - /v1/payments/{id}
       - /v1/payments/{id}/refunds
 
-  - fury_app: customers
+  - fury_app: openplatform-customer-go
     tag: Customers
     product: customers
     paths:
@@ -23,21 +23,21 @@ apps:
       - /v1/customers/{id}/cards
       - /v1/customers/search
 
-  - fury_app: preferences
+  - fury_app: mpcs-preferences-api
     tag: Preferences
     product: preferences
     paths:
       - /checkout/preferences
       - /checkout/preferences/{id}
 
-  - fury_app: chargebacks
+  - fury_app: chargeback-frontend-wrapper
     tag: Chargebacks
     product: chargebacks
     paths:
       - /v1/chargebacks
       - /v1/chargebacks/{id}
 
-  - fury_app: subscriptions
+  - fury_app: mp-subscriptions
     tag: Subscriptions
     product: subscriptions
     paths:
@@ -46,34 +46,34 @@ apps:
       - /preapproval_plan
       - /preapproval_plan/{id}
 
-  - fury_app: merchant_orders
+  - fury_app: merchant-orders-api
     tag: Merchant Orders
     product: merchant_orders
     paths:
       - /merchant_orders
       - /merchant_orders/{id}
 
-  - fury_app: oauth
+  - fury_app: platsec-oauth-api
     tag: OAuth
     product: oauth
     paths:
       - /oauth/token
 
-  - fury_app: payment_methods
+  - fury_app: payment-methods-write-v2
     tag: Payment Methods
     product: payment_methods
     paths:
       - /v1/payment_methods
       - /v1/payment_methods/installments
 
-  - fury_app: stores
+  - fury_app: stores-api
     tag: Stores
     product: stores
     paths:
       - /users/{user_id}/stores
       - /users/{user_id}/stores/{store_id}
 
-  - fury_app: pos
+  - fury_app: instore-api-pos
     tag: POS
     product: pos
     paths:
