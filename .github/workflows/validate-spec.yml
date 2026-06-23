@@ -1,0 +1,43 @@
+name: Validate spec3.yaml
+
+# Runs on every PR — auto-merge waits for this to pass
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - spec3.yaml
+      - schemas/**
+      - overlays/**
+
+jobs:
+  validate:
+    name: Validate OpenAPI spec
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install spectral
+        run: npm install -g @stoplight/spectral-cli
+
+      - name: Validate spec3.yaml
+        run: bash scripts/validate.sh
+
+      - name: Check no external $ref
+        run: |
+          COUNT=$(grep -c '\$ref: "schemas/' spec3.yaml 2>/dev/null || echo 0)
+          if [ "$COUNT" -gt 0 ]; then
+            echo "Error: $COUNT external \$ref found — run bundle.py first"
+            exit 1
+          fi
+          echo "No external \$ref — spec is self-contained ✓"

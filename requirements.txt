@@ -1,0 +1,6 @@
+# Python dependencies for openapi pipeline scripts
+# Install: pip install -r requirements.txt
+
+pyyaml>=6.0.2
+requests>=2.31.0
+openapi-spec-validator>=0.7.1

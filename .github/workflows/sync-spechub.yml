@@ -1,0 +1,146 @@
+name: Sync from Fury Spec Hub
+
+on:
+  # Manual trigger — sync one app or all
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'Fury app name to sync (empty = all apps in apps.yaml)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run — show diff but do not push branch'
+        required: false
+        type: boolean
+        default: false
+
+  # Scheduled polling — weekdays at 6 AM UTC
+  # Adjust cadence to match how often Spec Hub specs are updated
+  schedule:
+    - cron: '0 6 * * 1-5'
+
+  # Webhook trigger — call via GitHub API to sync immediately after a spec publish
+  # POST /repos/{owner}/{repo}/dispatches  body: {"event_type":"spec-hub-updated","client_payload":{"app_name":"payments"}}
+  repository_dispatch:
+    types:
+      - spec-hub-updated
+
+jobs:
+  sync:
+    name: Sync Spec Hub → spec3.yaml
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Configure git
+        run: |
+          git config user.name  "specbot"
+          git config user.email "specbot@mercadolibre.com"
+
+      - name: Resolve app name
+        id: resolve
+        run: |
+          # Priority: workflow_dispatch > repository_dispatch > empty (all)
+          APP="${{ github.event.inputs.app_name || github.event.client_payload.app_name }}"
+          echo "app_name=${APP}" >> $GITHUB_OUTPUT
+
+      - name: Run sync
+        id: sync
+        env:
+          # FURY_MCP_URL defaults to https://fury-mcp.melioffice.com/mcp/
+          # Override only if the endpoint changes.
+          FURY_MCP_URL: ${{ vars.FURY_MCP_URL || 'https://fury-mcp.melioffice.com/mcp/' }}
+          FURY_TOKEN: ${{ secrets.FURY_TOKEN }}
+        run: |
+          DRY_RUN_FLAG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+
+          APP="${{ steps.resolve.outputs.app_name }}"
+          if [ -n "$APP" ]; then
+            python scripts/sync_spechub.py --app "$APP" $DRY_RUN_FLAG
+          else
+            python scripts/sync_spechub.py --all $DRY_RUN_FLAG
+          fi
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet spec3.yaml; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No spec changes detected."
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            git diff --stat spec3.yaml
+          fi
+
+      - name: Bundle schemas + regenerate by-site specs
+        if: steps.changes.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
+        run: python scripts/bundle.py
+
+      - name: Validate spec3.yaml
+        if: steps.changes.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
+        run: bash scripts/validate.sh
+
+      - name: Check for by-site changes
+        id: bysite_changes
+        run: |
+          if git diff --quiet by-site/; then
+            echo "has_bysite_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_bysite_changes=true" >> $GITHUB_OUTPUT
+            git diff --stat by-site/
+          fi
+
+      - name: Commit and push branch
+        if: steps.changes.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
+        env:
+          APP: ${{ steps.resolve.outputs.app_name }}
+        run: |
+          APP_SLUG="${APP:-multi}"
+          SHORT_HASH=$(git diff spec3.yaml by-site/ | sha256sum | cut -c1-8)
+          BRANCH="enhancement/automatic-spec-${APP_SLUG}/spec3-${SHORT_HASH}"
+
+          git checkout -b "$BRANCH"
+          git add spec3.yaml
+
+          # Include by-site regenerated specs in the same commit
+          if [ "${{ steps.bysite_changes.outputs.has_bysite_changes }}" = "true" ]; then
+            git add by-site/
+          fi
+
+          # Build commit body — include removal warnings if any
+          REMOVAL_WARNINGS=""
+          if [ -f sync-removal-warnings.txt ]; then
+            REMOVAL_WARNINGS=$(cat sync-removal-warnings.txt)
+          fi
+
+          git commit -m "chore(spec): sync ${APP_SLUG} from Fury Spec Hub
+
+          Automatically synced via sync-spechub workflow.
+          Source: Fury Spec Hub app '${APP_SLUG}'
+          Triggered by: ${{ github.event_name }}
+
+          ${REMOVAL_WARNINGS}"
+
+          git push origin "$BRANCH"
+          echo "Branch pushed: $BRANCH"
+          # pr-on-push.yml reads the commit message and uses it as the PR body
