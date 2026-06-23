@@ -24,13 +24,18 @@ jobs:
         id: create-pr
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
         with:
+          github-token: ${{ secrets.UPSTREAM_GH_TOKEN }}
           script: |
             const branch = context.ref.replace('refs/heads/', '');
             const baseBranch = 'main';
+            // PR targets the upstream repo; branch lives in the fork
+            const upstreamOwner = 'mercadopago';
+            const forkOwner = context.repo.owner;
+            const repo = context.repo.repo;
 
             const { data: commit } = await github.rest.repos.getCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner: forkOwner,
+              repo,
               ref: context.sha,
             });
 
@@ -40,13 +45,16 @@ jobs:
               ? lines.slice(2).join('\n').trim()
               : lines.slice(1).join('\n').trim() || commitMessage;
 
-            // Check if PR already exists
+            // head must be "forkOwner:branch" for cross-fork PRs
+            const headRef = `${forkOwner}:${branch}`;
+
+            // Check if PR already exists on the upstream repo
             let existingPR = null;
             try {
               const { data: openPRs } = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head: `${context.repo.owner}:${branch}`,
+                owner: upstreamOwner,
+                repo,
+                head: headRef,
                 base: baseBranch,
                 state: 'open',
               });
@@ -59,8 +67,8 @@ jobs:
               console.log(`PR already exists: #${existingPR.number}`);
               try {
                 await github.rest.pulls.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  owner: upstreamOwner,
+                  repo,
                   pull_number: existingPR.number,
                   body: body || existingPR.body,
                 });
@@ -93,14 +101,14 @@ jobs:
             const reviewer = reviewers[weekNumber % reviewers.length];
             console.log(`Week ${weekNumber} → reviewer: ${reviewer}`);
 
-            // Create PR
+            // Create PR on the upstream repo from the fork branch
             let pr;
             try {
               const { data: newPR } = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner: upstreamOwner,
+                repo,
                 title: prTitle,
-                head: branch,
+                head: headRef,
                 base: baseBranch,
                 body: body || 'Automatically synced from Fury Spec Hub',
                 draft: false,
@@ -109,9 +117,9 @@ jobs:
             } catch (error) {
               if (error.status === 422 && error.message?.includes('already exists')) {
                 const { data: allPRs } = await github.rest.pulls.list({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  head: `${context.repo.owner}:${branch}`,
+                  owner: upstreamOwner,
+                  repo,
+                  head: headRef,
                   base: baseBranch,
                   state: 'all',
                 });
@@ -130,8 +138,8 @@ jobs:
             // Labels
             try {
               await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner: upstreamOwner,
+                repo,
                 issue_number: pr.number,
                 labels: ['automated', 'openapi-sync'],
               });
@@ -140,8 +148,8 @@ jobs:
             // Reviewer
             try {
               await github.rest.pulls.requestReviewers({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner: upstreamOwner,
+                repo,
                 pull_number: pr.number,
                 reviewers: [reviewer],
               });
@@ -153,10 +161,10 @@ jobs:
       - name: Enable auto-merge
         if: steps.create-pr.outputs.pr_number != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.UPSTREAM_GH_TOKEN }}
         run: |
           gh pr merge ${{ steps.create-pr.outputs.pr_number }} \
             --auto \
             --squash \
-            --repo ${{ github.repository }}
+            --repo mercadopago/openapi
           echo "Auto-merge enabled on PR #${{ steps.create-pr.outputs.pr_number }}"
