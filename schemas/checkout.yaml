@@ -1,63 +1,239 @@
 components:
   schemas:
-    Pagination:
+    PreferenceRequest:
       type: object
-      required:
-        - total
-        - limit
-        - offset
-        - has_more
+      description: >
+        Request body to create a Checkout Pro preference. The response contains `init_point`
+        — redirect your payer there to complete payment on MP's hosted UI.
       properties:
-        has_more:
+        items:
+          type: array
+          description: Items being purchased.
+          items:
+            $ref: "#/components/schemas/PreferenceItem"
+          minItems: 1
+        payer:
+          $ref: "#/components/schemas/PreferencePayer"
+        payment_methods:
+          $ref: "#/components/schemas/PreferencePaymentMethods"
+        shipments:
+          $ref: "#/components/schemas/PreferenceShipments"
+        back_urls:
+          $ref: "#/components/schemas/PreferenceBackUrls"
+        auto_return:
+          type: string
+          enum: [approved, all]
+          description: >
+            approved — auto-redirect to success URL on approved payments;
+            all — auto-redirect for any final status.
+        notification_url:
+          type: string
+          format: uri
+          description: URL for IPN notifications. Deprecated — use Webhooks instead.
+          deprecated: true
+        statement_descriptor:
+          type: string
+          description: Text on the payer's card statement. Max 22 chars.
+          maxLength: 22
+        additional_info:
+          type: string
+          description: Additional information string (returned in webhook payloads).
+        external_reference:
+          type: string
+          description: Your internal order reference. Returned in webhook payloads.
+          example: "ORDER-2024-001234"
+        expires:
           type: boolean
-          description: Whether there are more results available
-          example: true
-        total:
-          type: integer
-          description: Total number of payments matching the criteria
-          example: 250
-        offset:
-          type: integer
-          description: Current offset
-          example: 0
-        limit:
-          type: integer
-          description: Current limit
-          example: 20
-    Preference:
+          description: Whether this preference has an expiry window.
+          default: false
+        expiration_date_from:
+          type: string
+          format: date-time
+          description: Preference activation start time (ISO 8601).
+        expiration_date_to:
+          type: string
+          format: date-time
+          description: Preference expiration time (ISO 8601).
+        marketplace:
+          type: string
+          description: Origin of the payment. Default is NONE (direct MP). Use MELI for Mercado Libre.
+        marketplace_fee:
+          type: number
+          format: float
+          description: Marketplace fee charged to the seller. Fixed amount.
+        differential_pricing:
+          type: object
+          properties:
+            id:
+              type: integer
+        binary_mode:
+          type: boolean
+          default: false
+        tracks:
+          type: array
+          description: Pixel/event tracking configuration (Google Analytics, Facebook Pixel).
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [google_ad, facebook_ad]
+                description: Tracking type.
+              values:
+                type: object
+                description: Tracking-specific values (conversion_id, pixel_id, etc.)
+        metadata:
+          type: object
+          description: Valid JSON for additional attributes (not used by MP).
+          additionalProperties: true
+
+    PreferenceItem:
       type: object
-      description: A created Checkout Pro preference
+      required: [title, quantity, unit_price]
       properties:
         id:
           type: string
-          description: Preference unique identifier
-          example: 123456789-abcd1234-ef56-7890-abcd-ef1234567890
+        title:
+          type: string
+          example: "Premium Plan"
+        description:
+          type: string
+        picture_url:
+          type: string
+          format: uri
+        category_id:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+          example: 1
+        currency_id:
+          $ref: "#/components/schemas/CurrencyId"
+        unit_price:
+          type: number
+          format: float
+          description: Unit price as a decimal (not integer cents).
+          example: 99.90
+
+    PreferencePayer:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          $ref: "#/components/schemas/Phone"
+        identification:
+          $ref: "#/components/schemas/Identification"
+        address:
+          $ref: "#/components/schemas/Address"
+        date_created:
+          type: string
+          format: date-time
+
+    PreferencePaymentMethods:
+      type: object
+      properties:
+        excluded_payment_methods:
+          type: array
+          description: Payment methods to hide from checkout UI.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+        excluded_payment_types:
+          type: array
+          description: Payment type groups to exclude.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+        installments:
+          type: integer
+          description: Maximum number of installments to offer.
+          example: 12
+        default_installments:
+          type: integer
+          description: Pre-selected installments in the UI.
+
+    PreferenceShipments:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [custom, me2, not_specified]
+        free_shipping:
+          type: boolean
+          default: false
+        receiver_address:
+          $ref: "#/components/schemas/Address"
+        cost:
+          type: number
+          format: float
+
+    PreferenceBackUrls:
+      type: object
+      description: Redirect URLs after checkout completion.
+      properties:
+        success:
+          type: string
+          format: uri
+          description: Redirect after approved payment.
+        pending:
+          type: string
+          format: uri
+          description: Redirect for pending payments (e.g., Boleto).
+        failure:
+          type: string
+          format: uri
+          description: Redirect after rejected payment.
+
+    Preference:
+      type: object
+      description: A created Checkout Pro preference.
+      properties:
+        id:
+          type: string
+          description: Preference unique identifier.
+          example: "123456789-abcd1234-ef56-7890-abcd-ef1234567890"
         init_point:
           type: string
           format: uri
           description: Production checkout URL. Redirect your payer here to complete payment.
-          example: https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=...
         items:
           type: array
           items:
-            $ref: '#/components/schemas/PreferenceItem'
+            $ref: "#/components/schemas/PreferenceItem"
         payer:
-          $ref: '#/components/schemas/PreferencePayer'
+          $ref: "#/components/schemas/PreferencePayer"
         payment_methods:
-          $ref: '#/components/schemas/PreferencePaymentMethods'
+          $ref: "#/components/schemas/PreferencePaymentMethods"
         back_urls:
-          $ref: '#/components/schemas/PreferenceBackUrls'
+          $ref: "#/components/schemas/PreferenceBackUrls"
+        auto_return:
+          type: string
+          enum: [approved, all]
         external_reference:
           type: string
+        additional_info:
+          type: string
+        statement_descriptor:
+          type: string
+        notification_url:
+          type: string
+          format: uri
+          deprecated: true
+        shipments:
+          $ref: "#/components/schemas/PreferenceShipments"
         date_created:
           type: string
           format: date-time
-        last_updated:
-          type: string
-          format: date-time
-        total_amount:
-          type: number
-          format: float
         expires:
           type: boolean
         expiration_date_from:
@@ -75,183 +251,8 @@ components:
         marketplace_fee:
           type: number
           format: float
-    PreferenceBackUrls:
-      type: object
-      description: Redirect URLs after checkout completion. Configure auto_return to control when automatic redirects happen.
-      properties:
-        success:
+        operation_type:
           type: string
-          format: uri
-          description: Redirect after approved payment
-        pending:
-          type: string
-          format: uri
-          description: Redirect for pending payments (e.g., Boleto)
-        failure:
-          type: string
-          format: uri
-          description: Redirect after rejected payment
-    PreferenceItem:
-      type: object
-      required:
-        - title
-        - quantity
-        - unit_price
-      properties:
-        id:
-          type: string
-        title:
-          type: string
-          example: Premium Plan
-        description:
-          type: string
-        picture_url:
-          type: string
-          format: uri
-        category_id:
-          type: string
-        quantity:
-          type: integer
-          minimum: 1
-          example: 1
-        currency_id:
-          $ref: '#/components/schemas/CurrencyId'
-        unit_price:
-          type: number
-          format: float
-          description: Unit price as a decimal (not integer cents)
-          example: 99.9
-    PreferencePayer:
-      type: object
-      properties:
-        name:
-          type: string
-        surname:
-          type: string
-        email:
-          type: string
-          format: email
-        phone:
-          $ref: '#/components/schemas/Phone'
-        identification:
-          $ref: '#/components/schemas/Identification'
-        address:
-          $ref: '#/components/schemas/Address'
-        date_created:
-          type: string
-          format: date-time
-    PreferencePaymentMethods:
-      type: object
-      properties:
-        excluded_payment_methods:
-          type: array
-          description: Payment methods to hide from checkout UI
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-        excluded_payment_types:
-          type: array
-          description: Payment type groups to exclude
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-        installments:
-          type: integer
-          description: Maximum number of installments to offer
-          example: 12
-        default_installments:
-          type: integer
-          description: Pre-selected installments in the UI
-    PreferenceRequest:
-      type: object
-      required:
-        - items
-      description: >-
-        Request body to create a Checkout Pro preference. The preference generates a hosted checkout URL (init_point)
-        where the payer is redirected to complete payment on MP's UI. Use this for simple integrations; use Orders API
-        for custom checkout experiences.
-      properties:
-        items:
-          type: array
-          description: List of products/services being purchased
-          items:
-            $ref: '#/components/schemas/PreferenceItem'
-          minItems: 1
-        payer:
-          $ref: '#/components/schemas/PreferencePayer'
-        payment_methods:
-          $ref: '#/components/schemas/PreferencePaymentMethods'
-        shipments:
-          $ref: '#/components/schemas/PreferenceShipments'
-        back_urls:
-          $ref: '#/components/schemas/PreferenceBackUrls'
-        notification_url:
-          type: string
-          format: uri
-          description: URL for IPN notifications. DEPRECATED — use Webhooks instead.
-          deprecated: true
-        statement_descriptor:
-          type: string
-          description: Text on the payer's card statement. Max 22 chars.
-          maxLength: 22
-        additional_info:
-          type: string
-          description: Free-text additional info (returned in webhook notifications)
-        auto_return:
-          type: string
-          enum:
-            - approved
-            - all
-          description: approved — auto-redirect to success URL on approved payments; all — auto-redirect for any final status.
-        external_reference:
-          type: string
-          description: Your internal order reference. Returned in webhook payloads.
-          example: ORDER-2024-001234
-        expires:
+        preference_expired:
           type: boolean
-          description: Whether this preference has an expiry window
-          default: false
-        expiration_date_from:
-          type: string
-          format: date-time
-          description: Preference activation start time (ISO 8601)
-        expiration_date_to:
-          type: string
-          format: date-time
-          description: Preference expiration time (ISO 8601)
-        marketplace:
-          type: string
-          description: Marketplace identifier
-        marketplace_fee:
-          type: number
-          format: float
-          description: Marketplace fee charged to the seller
-        differential_pricing:
-          type: object
-          properties:
-            id:
-              type: integer
-        binary_mode:
-          type: boolean
-          default: false
-    PreferenceShipments:
-      type: object
-      properties:
-        mode:
-          type: string
-          enum:
-            - custom
-            - me2
-            - not_specified
-        free_shipping:
-          type: boolean
-          default: false
-        receiver_address:
-          $ref: '#/components/schemas/Address'
-        cost:
-          type: number
-          format: float
+          description: Whether this preference has already expired.

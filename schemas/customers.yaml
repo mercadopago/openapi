@@ -1,23 +1,148 @@
 components:
   schemas:
-    Card:
+    CustomerRequest:
       type: object
-      description: A tokenized card saved to a customer (never contains full PAN or CVV)
+      description: Request body to create or update a customer.
+      properties:
+        email:
+          type: string
+          format: email
+          description: Customer email address (unique identifier).
+          example: "customer@example.com"
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          $ref: "#/components/schemas/Phone"
+        identification:
+          $ref: "#/components/schemas/Identification"
+        address:
+          $ref: "#/components/schemas/Address"
+        description:
+          type: string
+        date_registered:
+          type: string
+          format: date-time
+          description: Date the customer registered with your platform.
+        default_address:
+          type: string
+          description: ID of the customer's default address.
+        default_card:
+          type: string
+          description: ID of the customer's default saved card.
+
+    Customer:
+      type: object
+      description: A stored MercadoPago customer.
       properties:
         id:
           type: string
-          description: Card unique identifier
-          example: '1234567890'
+          description: Customer unique identifier.
+          example: "123456789-abcd"
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          $ref: "#/components/schemas/Phone"
+        identification:
+          $ref: "#/components/schemas/Identification"
+        address:
+          $ref: "#/components/schemas/Address"
+        addresses:
+          type: array
+          description: All addresses associated with this customer.
+          items:
+            $ref: "#/components/schemas/Address"
+        date_registered:
+          type: string
+          format: date-time
+        date_created:
+          type: string
+          format: date-time
+        date_last_updated:
+          type: string
+          format: date-time
+        description:
+          type: string
+        default_address:
+          type: string
+          description: ID of the customer's default address.
+        default_card:
+          type: string
+          description: ID of the customer's default saved card.
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/Card"
+          description: Saved cards for this customer.
+
+    CustomerSearchResult:
+      type: object
+      properties:
+        paging:
+          $ref: "#/components/schemas/Pagination"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/Customer"
+
+    SaveCardRequest:
+      type: object
+      required: [token]
+      description: >
+        Request body to save a card to a customer. The card token must be created
+        client-side via MercadoPago.js before calling this endpoint.
+      properties:
+        token:
+          type: string
+          description: Single-use card token from MercadoPago.js.
+          example: "ff8080814c11e237014c1ff593b57b4d"
+
+    UpdateCardRequest:
+      type: object
+      description: Request body to update a saved card's expiry or cardholder data.
+      properties:
+        expiration_month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        expiration_year:
+          type: integer
+        cardholder:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name as it appears on the card.
+            identification:
+              $ref: "#/components/schemas/Identification"
+
+    Card:
+      type: object
+      description: A tokenized card saved to a customer (never contains full PAN or CVV).
+      properties:
+        id:
+          type: string
+          description: Card unique identifier.
+          example: "1234567890"
         customer_id:
           type: string
+        user_id:
+          type: string
+          description: User ID who owns this card.
         first_six_digits:
           type: string
-          description: First 6 digits of card (BIN — identifies issuer and type)
-          example: '411111'
+          description: First 6 digits (BIN — identifies issuer and type).
+          example: "411111"
         last_four_digits:
           type: string
-          description: Last 4 digits of card
-          example: '4321'
+          description: Last 4 digits.
+          example: "4321"
         expiration_month:
           type: integer
           minimum: 1
@@ -29,6 +154,10 @@ components:
         date_created:
           type: string
           format: date-time
+        date_registered:
+          type: string
+          format: date-time
+          description: Date the card was registered.
         date_last_updated:
           type: string
           format: date-time
@@ -37,9 +166,9 @@ components:
           properties:
             name:
               type: string
-              description: Name on card
+              description: Name on card.
             identification:
-              $ref: '#/components/schemas/Identification'
+              $ref: "#/components/schemas/Identification"
         payment_method:
           type: object
           properties:
@@ -67,107 +196,22 @@ components:
           properties:
             mode:
               type: string
-              enum:
-                - mandatory
-                - optional
+              enum: [mandatory, optional]
             length:
               type: integer
               example: 3
-    CardDetails:
-      type: object
-      required:
-        - number
-        - expiry_month
-        - expiry_year
-        - cvv
-      properties:
-        number:
-          type: string
-          pattern: ^[0-9]{13,19}$
-          description: Card number
-          example: '4111111111111111'
-        expiry_month:
-          type: integer
-          minimum: 1
-          maximum: 12
-          description: Card expiry month
-          example: 12
-        expiry_year:
-          type: integer
-          minimum: 2024
-          description: Card expiry year
-          example: 2026
-        cvv:
-          type: string
-          pattern: ^[0-9]{3,4}$
-          description: Card verification value
-          example: '123'
-        cardholder_name:
-          type: string
-          maxLength: 100
-          description: Name on the card
-          example: John Doe
-    CardToken:
-      type: object
-      description: >-
-        A single-use card token representing a card. Expires in 7 days or after first use. Use this token in payment or
-        order creation requests.
-      properties:
-        id:
-          type: string
-          description: Token unique identifier — use as the `token` field in payments
-          example: YOUR_ACCESS_TOKEN
-        first_six_digits:
-          type: string
-          example: '411111'
-        last_four_digits:
-          type: string
-          example: '4321'
-        expiration_month:
-          type: integer
-        expiration_year:
-          type: integer
-        date_created:
-          type: string
-          format: date-time
-        date_due:
-          type: string
-          format: date-time
-          description: Token expiry (7 days after creation)
-        luhn_validation:
-          type: boolean
-        status:
-          type: string
-          enum:
-            - active
-            - used
-            - expired
-        card_id:
-          type: string
-          description: Linked saved card ID (if token was created from a saved card)
-        cardholder:
-          type: object
-          properties:
-            name:
-              type: string
-            identification:
-              $ref: '#/components/schemas/Identification'
+
     CardTokenRequest:
       type: object
-      required:
-        - card_number
-        - expiration_month
-        - expiration_year
-        - security_code
-        - cardholder
-      description: >-
-        Card tokenization request. This is a CLIENT-SIDE ONLY operation — use MercadoPago.js or MP Secure Fields to call
-        this endpoint from the browser. Never send raw card data through your server.
+      required: [card_number, expiration_month, expiration_year, security_code, cardholder]
+      description: >
+        CLIENT-SIDE ONLY. Creates a single-use card token from raw card data via
+        MercadoPago.js using the PUBLIC_KEY. Never call server-side.
       properties:
         card_number:
           type: string
-          description: Full card PAN — client-side only, never server-side
-          example: '4111111111111111'
+          description: Full card PAN — client-side only.
+          example: "4111111111111111"
         expiration_month:
           type: integer
           minimum: 1
@@ -178,203 +222,57 @@ components:
           example: 2028
         security_code:
           type: string
-          description: CVV / CVC — client-side only
-          example: '123'
+          description: CVV / CVC — client-side only.
+          example: "123"
         cardholder:
           type: object
-          required:
-            - name
+          required: [name]
           properties:
             name:
               type: string
-              description: Name exactly as printed on card
-              example: JOHN DOE
+              description: Name exactly as printed on card.
+              example: "JOHN DOE"
             identification:
-              $ref: '#/components/schemas/Identification'
-    Customer:
+              $ref: "#/components/schemas/Identification"
+
+    CardToken:
       type: object
-      description: A stored MercadoPago customer
+      description: >
+        A single-use card token. Use as the `token` field in payment or order creation.
       properties:
         id:
           type: string
-          description: Customer unique identifier
-          example: 123456789-abcd
-        email:
+          description: Token unique identifier.
+          example: "ff8080814c11e237014c1ff593b57b4d"
+        first_six_digits:
           type: string
-          format: email
-        first_name:
+          example: "411111"
+        last_four_digits:
           type: string
-        last_name:
-          type: string
-        phone:
-          $ref: '#/components/schemas/Phone'
-        identification:
-          $ref: '#/components/schemas/Identification'
-        address:
-          $ref: '#/components/schemas/Address'
-        date_registered:
-          type: string
-          format: date-time
+          example: "4321"
+        expiration_month:
+          type: integer
+        expiration_year:
+          type: integer
         date_created:
           type: string
           format: date-time
-        date_last_updated:
+        date_due:
           type: string
           format: date-time
-        description:
-          type: string
-        metadata:
-          type: object
-          additionalProperties: true
-        cards:
-          type: array
-          items:
-            $ref: '#/components/schemas/Card'
-          description: Saved cards for this customer
-        default_card:
-          type: string
-          description: ID of the customer's default card
-    CustomerCreateRequest:
-      type: object
-      required:
-        - first_name
-        - last_name
-        - email
-      properties:
-        first_name:
-          description: Customer first name
-          type: string
-          maxLength: 50
-          example: John
-        address:
-          $ref: '#/components/schemas/Address'
-        phone:
-          pattern: ^\+?[1-9]\d{1,14}$
-          description: Customer phone number in E.164 format
-          type: string
-          example: +1-555-987-6543
-        last_name:
-          description: Customer last name
-          type: string
-          maxLength: 50
-          example: Doe
-        email:
-          format: email
-          description: Customer email address
-          type: string
-          example: john.doe@example.com
-    CustomerRequest:
-      type: object
-      description: Request body to create or update a customer
-      properties:
-        email:
-          type: string
-          format: email
-          description: Customer email address (unique identifier)
-          example: customer@example.com
-        first_name:
-          type: string
-        last_name:
-          type: string
-        phone:
-          $ref: '#/components/schemas/Phone'
-        identification:
-          $ref: '#/components/schemas/Identification'
-        address:
-          $ref: '#/components/schemas/Address'
-        description:
-          type: string
-        metadata:
-          type: object
-          additionalProperties: true
-    CustomerResponse:
-      type: object
-      required:
-        - customer_id
-        - first_name
-        - last_name
-        - email
-        - status
-        - created_at
-      properties:
-        first_name:
-          type: string
-          description: Customer first name
-          example: John
-        address:
-          $ref: '#/components/schemas/Address'
-        updated_at:
-          format: date-time
-          description: Last update timestamp
-          type: string
-          example: '2024-01-15T08:30:15Z'
-        phone:
-          type: string
-          description: Customer phone number
-          example: +1-555-987-6543
-        created_at:
-          format: date-time
-          description: Customer creation timestamp
-          type: string
-          example: '2024-01-15T08:30:00Z'
-        customer_id:
-          format: uuid
-          description: Unique customer identifier
-          type: string
-          example: 123e4567-e89b-12d3-a456-426614174000
-        last_name:
-          type: string
-          description: Customer last name
-          example: Doe
-        email:
-          format: email
-          description: Customer email address
-          type: string
-          example: john.doe@example.com
+          description: Token expiry.
+        luhn_validation:
+          type: boolean
         status:
-          description: Current customer status
           type: string
-          enum:
-            - active
-            - inactive
-            - suspended
-          example: active
-    CustomerSearchResult:
-      type: object
-      properties:
-        paging:
-          $ref: '#/components/schemas/Pagination'
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Customer'
-    SaveCardRequest:
-      type: object
-      required:
-        - token
-      description: >-
-        Request body to save a card to a customer. The card token must be created client-side via MercadoPago.js / MP
-        Secure Fields before calling this endpoint. Raw card data (PAN, CVV) must never be sent to your server.
-      properties:
-        token:
+          enum: [active, used, expired]
+        card_id:
           type: string
-          description: Single-use card token from MercadoPago.js
-          example: YOUR_ACCESS_TOKEN
-    UpdateCardRequest:
-      type: object
-      description: Request body to update a saved card's expiry or cardholder data.
-      properties:
-        expiration_month:
-          type: integer
-          minimum: 1
-          maximum: 12
-        expiration_year:
-          type: integer
+          description: Linked saved card ID (if token was created from a saved card).
         cardholder:
           type: object
           properties:
             name:
               type: string
-              description: Name as it appears on the card.
             identification:
-              $ref: '#/components/schemas/Identification'
+              $ref: "#/components/schemas/Identification"

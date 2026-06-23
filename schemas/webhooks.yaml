@@ -1,130 +1,123 @@
 components:
   schemas:
-    MerchantAnalyticsResponse:
+    WebhookNotification:
       type: object
-      required:
-        - merchant_id
-        - total_transactions
-        - total_volume
-        - total_fees_collected
-        - period
+      description: >
+        Webhook notification payload sent to your notification URL when a resource
+        changes. Validate the x-signature HMAC-SHA256 header before processing.
+        After receiving, GET the resource URL to fetch the full updated object.
+      required: [id, type, data]
       properties:
-        period:
-          type: object
-          required:
-            - start_date
-            - end_date
-          properties:
-            end_date:
-              format: date
-              description: End date of the analytics period
-              type: string
-              example: '2024-01-31'
-            start_date:
-              format: date
-              description: Start date of the analytics period
-              type: string
-              example: '2024-01-01'
-        total_fees_collected:
-          format: decimal
-          description: Total fees collected from this merchant
-          type: number
-          example: 1247.83
-        top_customers:
-          type: array
-          description: Top customers by transaction volume
-          items:
-            type: object
-            properties:
-              transaction_count:
-                type: integer
-                description: Number of transactions
-                example: 15
-              customer_id:
-                format: uuid
-                description: Customer identifier
-                type: string
-                example: 123e4567-e89b-12d3-a456-426614174000
-              total_volume:
-                format: decimal
-                description: Total volume from this customer
-                type: number
-                example: 2456.78
-        total_volume:
-          format: decimal
-          description: Total payment volume for this merchant
-          type: number
-          example: 87459.32
-        total_transactions:
+        id:
           type: integer
-          description: Total number of transactions for this merchant
-          example: 456
-        merchant_id:
-          format: uuid
-          description: Merchant identifier
+          description: Notification unique ID (use for deduplication).
+          example: 12345678
+        type:
           type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-    MerchantCreateRequest:
-      type: object
-      required:
-        - business_name
-        - email
-        - phone
-        - address
-      properties:
-        business_name:
-          description: Name of the business
+          description: Resource type that triggered the notification.
+          enum:
+            - payment
+            - merchant_order
+            - subscription_preapproval
+            - subscription_preapproval_plan
+            - subscription_authorized_payment
+            - point_integration_wh
+            - chargebacks
+            - delivery
+          example: payment
+        date_created:
           type: string
-          maxLength: 100
-          example: Acme Corporation
-        phone:
-          pattern: ^\+?[1-9]\d{1,14}$
-          description: Business phone number in E.164 format
+          format: date-time
+        user_id:
+          type: integer
+          description: MP user ID that owns the resource.
+        api_version:
           type: string
-          example: +1-555-123-4567
-        website:
-          format: uri
-          description: Business website URL
+          example: "v1"
+        action:
           type: string
-          example: https://www.acme.com
-        address:
-          $ref: '#/components/schemas/Address'
-        email:
-          format: email
-          description: Business email address
-          type: string
-          example: contact@acme.com
-    MerchantListResponse:
-      type: object
-      required:
-        - data
-        - pagination
-      properties:
+          enum: [payment.created, payment.updated, subscription.authorized, subscription.cancelled, order.created, order.updated, point_integration_wh]
+          example: payment.updated
         data:
-          type: array
-          description: List of merchants
-          items:
-            $ref: '#/components/schemas/MerchantResponse'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
+          type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+              description: >
+                Resource ID. Fetch this via GET at the resource URL to get full details.
+                Do not rely on the webhook payload alone — always GET the resource.
+              example: "1234567890"
+
+    WebhookSignatureHeader:
+      type: object
+      description: >
+        The x-signature header value format: ts=<timestamp>,v1=<hmac_sha256_signature>.
+        Validate using HMAC-SHA256 with your webhook secret key.
+      properties:
+        ts:
+          type: string
+          description: Unix timestamp of the notification.
+        v1:
+          type: string
+          description: "HMAC-SHA256 signature of \"id:[notif_id];request-id:[req_id];ts:[ts];\""
+
     MerchantOrder:
       type: object
-      description: >-
-        A merchant order groups multiple payments for a single purchase. Updated when any associated payment changes
-        status.
+      description: >
+        A merchant order groups multiple payments for a single purchase.
+        Updated when any associated payment changes status.
       properties:
         id:
           type: integer
         status:
           type: string
-          enum:
-            - opened
-            - closed
-            - expired
+          enum: [opened, closed, expired]
+        order_status:
+          type: string
+          description: Aggregated status of all payments in the order.
+          enum: [payment_required, payment_in_process, paid, partially_paid, partially_refunded, pending_cancel, cancelled, refunded]
         external_reference:
           type: string
         preference_id:
           type: string
+        marketplace:
+          type: string
+          description: Origin marketplace (NONE for direct MP, MELI for Mercado Libre).
+        application_id:
+          type: string
+        site_id:
+          type: string
+          description: Site where the order was created.
+          enum: [MLA, MLB, MLM, MLC, MCO, MPE, MLU]
+        notification_url:
+          type: string
+          format: uri
+          deprecated: true
+        sponsor_id:
+          type: integer
+        collector:
+          type: object
+          description: Seller information.
+          properties:
+            id:
+              type: integer
+            email:
+              type: string
+              format: email
+            nickname:
+              type: string
+        payer:
+          type: object
+          description: Buyer information.
+          properties:
+            id:
+              type: integer
+            email:
+              type: string
+              format: email
+            nickname:
+              type: string
         payments:
           type: array
           items:
@@ -142,7 +135,7 @@ components:
                 type: number
                 format: float
               currency_id:
-                $ref: '#/components/schemas/CurrencyId'
+                $ref: "common.yaml#/components/schemas/CurrencyId"
               status:
                 type: string
               status_detail:
@@ -155,16 +148,26 @@ components:
               date_approved:
                 type: string
                 format: date-time
+        shipments:
+          type: array
+          description: Shipping info associated with the order.
+          items:
+            type: object
+        payouts:
+          type: array
+          description: Payout information for marketplace payments.
+          items:
+            type: object
         items:
           type: array
           items:
             type: object
-        date_created:
+        additional_info:
           type: string
-          format: date-time
-        last_updated:
-          type: string
-          format: date-time
+        shipping_cost:
+          type: number
+          format: float
+          description: Total shipping cost.
         total_amount:
           type: number
           format: float
@@ -174,210 +177,12 @@ components:
         refunded_amount:
           type: number
           format: float
-        shipping:
-          type: object
-        notification_url:
-          type: string
-          format: uri
-          deprecated: true
-    MerchantResponse:
-      type: object
-      required:
-        - merchant_id
-        - business_name
-        - email
-        - phone
-        - status
-        - created_at
-      properties:
-        business_name:
-          type: string
-          description: Business name
-          example: Acme Corporation
-        phone:
-          type: string
-          description: Business phone number
-          example: +1-555-123-4567
-        website:
-          format: uri
-          description: Business website URL
-          type: string
-          example: https://www.acme.com
-        updated_at:
-          format: date-time
-          description: Last update timestamp
-          type: string
-          example: '2024-01-15T09:30:15Z'
-        address:
-          $ref: '#/components/schemas/Address'
-        email:
-          format: email
-          description: Business email address
-          type: string
-          example: contact@acme.com
-        merchant_id:
-          format: uuid
-          description: Unique merchant identifier
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-        created_at:
-          format: date-time
-          description: Merchant creation timestamp
-          type: string
-          example: '2024-01-15T09:30:00Z'
-        status:
-          description: Current merchant status
-          type: string
-          enum:
-            - pending
-            - active
-            - suspended
-            - inactive
-          example: active
-    MerchantUpdateRequest:
-      type: object
-      properties:
-        business_name:
-          description: Name of the business
-          type: string
-          maxLength: 100
-          example: Acme Corporation Ltd
-        website:
-          format: uri
-          description: Business website URL
-          type: string
-          example: https://www.acme.com
-        address:
-          $ref: '#/components/schemas/Address'
-        phone:
-          pattern: ^\+?[1-9]\d{1,14}$
-          description: Business phone number in E.164 format
-          type: string
-          example: +1-555-123-4567
-        email:
-          format: email
-          description: Business email address
-          type: string
-          example: contact@acme.com
-    WebhookEvent:
-      type: object
-      required:
-        - event_id
-        - event_type
-        - resource_id
-        - created_at
-        - data
-      properties:
-        event_id:
-          format: uuid
-          description: Unique event identifier
-          type: string
-          example: evt_987fcdeb-51a2-43d1-9c15-246531579012
-        event_type:
-          description: Type of webhook event
-          type: string
-          enum:
-            - payment.completed
-            - payment.failed
-            - refund.processed
-            - subscription.created
-            - subscription.cancelled
-          example: payment.completed
-        resource_id:
-          format: uuid
-          description: ID of the resource that triggered the event
-          type: string
-          example: 987fcdeb-51a2-43d1-9c15-246531579012
-        created_at:
-          format: date-time
-          description: Event creation timestamp
-          type: string
-          example: '2024-01-15T05:30:00Z'
-        data:
-          type: object
-          description: Event payload data
-          additionalProperties: true
-    WebhookEventListResponse:
-      type: object
-      required:
-        - data
-        - pagination
-      properties:
-        data:
-          type: array
-          description: List of webhook events
-          items:
-            $ref: '#/components/schemas/WebhookEvent'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-    WebhookNotification:
-      type: object
-      description: >-
-        Webhook notification payload sent to your notification URL when a resource changes. Validate the x-signature
-        HMAC-SHA256 header before processing. After receiving, GET the resource URL to fetch the full updated object.
-      required:
-        - id
-        - type
-        - data
-      properties:
-        id:
-          type: integer
-          description: Notification unique ID (use for deduplication)
-          example: 12345678
-        type:
-          type: string
-          description: Resource type that triggered the notification
-          enum:
-            - payment
-            - merchant_order
-            - subscription_preapproval
-            - subscription_preapproval_plan
-            - subscription_authorized_payment
-            - point_integration_wh
-            - chargebacks
-            - delivery
-          example: payment
         date_created:
           type: string
           format: date-time
-        user_id:
-          type: integer
-          description: MP user ID that owns the resource
-        api_version:
+        last_updated:
           type: string
-          example: v1
-        action:
-          type: string
-          enum:
-            - payment.created
-            - payment.updated
-            - subscription.authorized
-            - subscription.cancelled
-            - order.created
-            - order.updated
-            - point_integration_wh
-          example: payment.updated
-        data:
-          type: object
-          required:
-            - id
-          properties:
-            id:
-              type: string
-              description: >-
-                Resource ID. Fetch this via GET at the resource URL to get full details. Do not rely on the webhook
-                payload alone — always GET the resource.
-              example: '1234567890'
-    WebhookSignatureHeader:
-      type: object
-      description: >-
-        The x-signature header value format: ts=<timestamp>,v1=<hmac_sha256_signature>. Validate using HMAC-SHA256 with
-        your webhook secret key. See:
-        https://www.mercadopago.com/developers/en/docs/your-integrations/notifications/webhooks
-      properties:
-        ts:
-          type: string
-          description: Unix timestamp of the notification
-        v1:
-          type: string
-          description: HMAC-SHA256 signature of "id:[notif_id];request-id:[req_id];ts:[ts];"
+          format: date-time
+        canceled:
+          type: boolean
+          description: Whether this order has been canceled.

@@ -11,22 +11,22 @@ components:
         type:
           type: string
           enum:
-            - mediations
-            - claims
+          - mediations
+          - claims
           description: mediations — buyer-initiated dispute requiring MP mediation; claims — seller-initiated claim
         stage:
           type: string
           enum:
-            - claim
-            - dispute
-            - resolution
+          - claim
+          - dispute
+          - resolution
           description: Current stage in the dispute lifecycle
         status:
           type: string
           enum:
-            - opened
-            - closed
-            - cancelled
+          - opened
+          - closed
+          - cancelled
         date_created:
           type: string
           format: date-time
@@ -36,9 +36,9 @@ components:
         resource:
           type: string
           enum:
-            - payment
-            - shipment
-            - order
+          - payment
+          - shipment
+          - order
           description: Resource type the claim is about
         reason_id:
           type: string
@@ -52,48 +52,14 @@ components:
               role:
                 type: string
                 enum:
-                  - complainant
-                  - respondent
+                - complainant
+                - respondent
               user_id:
                 type: integer
               available_actions:
                 type: array
                 items:
                   type: string
-    ClaimEvidence:
-      type: object
-      properties:
-        id:
-          type: string
-        type:
-          type: string
-          enum:
-            - tracking_code
-            - photo
-            - invoice
-            - other
-        date_created:
-          type: string
-          format: date-time
-        file_name:
-          type: string
-    ClaimHistoryEntry:
-      type: object
-      properties:
-        date:
-          type: string
-          format: date-time
-        status:
-          type: string
-        stage:
-          type: string
-        changed_by:
-          type: string
-          enum:
-            - buyer
-            - seller
-            - system
-            - mediator
     ClaimMessage:
       type: object
       description: A message within a claim thread
@@ -111,9 +77,9 @@ components:
             role:
               type: string
               enum:
-                - complainant
-                - respondent
-                - mediator
+              - complainant
+              - respondent
+              - mediator
         message:
           type: string
           description: Text content of the message
@@ -139,17 +105,51 @@ components:
         type:
           type: string
           enum:
-            - mediations
-            - claims
+          - mediations
+          - claims
     ClaimSearchResult:
       type: object
       properties:
         paging:
-          $ref: '#/components/schemas/Pagination'
+          $ref: common.yaml#/components/schemas/Pagination
         results:
           type: array
           items:
             $ref: '#/components/schemas/Claim'
+    ClaimHistoryEntry:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        status:
+          type: string
+        stage:
+          type: string
+        changed_by:
+          type: string
+          enum:
+          - buyer
+          - seller
+          - system
+          - mediator
+    ClaimEvidence:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+          - tracking_code
+          - photo
+          - invoice
+          - other
+        date_created:
+          type: string
+          format: date-time
+        file_name:
+          type: string
     MediationResolution:
       type: object
       description: Expected resolution options at mediation stage
@@ -157,9 +157,9 @@ components:
         type:
           type: string
           enum:
-            - refund
-            - return
-            - partial_refund
+          - refund
+          - return
+          - partial_refund
         amount:
           type: number
           format: float
@@ -168,7 +168,7 @@ components:
     SendMessageRequest:
       type: object
       required:
-        - message
+      - message
       properties:
         message:
           type: string

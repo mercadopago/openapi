@@ -1,17 +1,200 @@
 components:
   schemas:
+    PaymentRequest:
+      type: object
+      description: >
+        Request body to create a payment. For card payments, `token` and `payment_method_id`
+        are required. For cash/offline methods, only `payment_method_id` is required.
+      properties:
+        transaction_amount:
+          type: number
+          format: float
+          description: >
+            Payment amount as a decimal number. MercadoPago does NOT use integer cents —
+            send 100.50 for R$100,50 (not 10050). CLP uses 0 decimal places.
+          example: 100.50
+          minimum: 0.01
+        token:
+          type: string
+          description: Card token created client-side via MercadoPago.js. Required for credit/debit card payments.
+          example: "ff8080814c11e237014c1ff593b57b4d"
+        description:
+          type: string
+          description: Description of the purchased product or service.
+          example: "Premium subscription — 1 month"
+        installments:
+          type: integer
+          description: Number of installments (1 = no installments).
+          example: 1
+          minimum: 1
+        payment_method_id:
+          type: string
+          description: >
+            Payment method identifier. Examples: visa, master, bolbradesco (Boleto),
+            pix, oxxo, rapipago, pse. Use GET /v1/payment_methods to list available methods.
+          example: visa
+        issuer_id:
+          type: string
+          description: Card issuer ID (required for some credit cards).
+          example: "310"
+        payer:
+          $ref: "#/components/schemas/PaymentPayer"
+        capture:
+          type: boolean
+          description: >
+            Set false to only authorize (reserve funds). Use PUT /v1/payments/{id}
+            with capture=true to capture later. Debit cards do not support two-step capture.
+          default: true
+        binary_mode:
+          type: boolean
+          description: When true, payments can only be approved or rejected — no pending state.
+          default: false
+        external_reference:
+          type: string
+          description: Your internal order or reference ID. Max 256 chars.
+          example: "ORDER-2024-001234"
+        notification_url:
+          type: string
+          format: uri
+          description: URL to receive IPN notifications. Deprecated — use Webhooks instead.
+          deprecated: true
+        statement_descriptor:
+          type: string
+          description: Text on the payer's card statement. Max 22 chars.
+          example: "MYSTORE.COM"
+          maxLength: 22
+        callback_url:
+          type: string
+          format: uri
+          description: Redirect URL after bank transfer (redirect-based methods only).
+        date_of_expiration:
+          type: string
+          format: date-time
+          description: Expiration date for cash/offline payment methods (ISO 8601).
+          example: "2024-12-31T23:59:59.000-03:00"
+        campaign_id:
+          type: number
+          description: >
+            Identifier of the discount campaign entity. All coupons come from a campaign.
+          example: 123456
+        differential_pricing_id:
+          type: number
+          description: >
+            Marketplace pricing agreement ID. Contains the agreement on fees charged
+            to the seller. Used in marketplace integrations.
+          example: 1
+        application_fee:
+          type: number
+          format: float
+          description: Marketplace fee charged to the seller. Fixed amount.
+          example: 1.50
+        coupon_code:
+          type: string
+          description: Discount coupon code.
+        coupon_amount:
+          type: number
+          format: float
+          description: Coupon discount value.
+        metadata:
+          type: object
+          description: Optional key-value object for additional attributes (not used by MP).
+          additionalProperties: true
+        additional_info:
+          $ref: "#/components/schemas/PaymentAdditionalInfo"
+
+    PaymentUpdateRequest:
+      type: object
+      description: Request body to update a payment (capture, cancel, or extend expiration).
+      properties:
+        capture:
+          type: boolean
+          description: Set true to capture an authorized payment.
+        status:
+          type: string
+          enum: [cancelled]
+          description: Set to cancelled to cancel an authorized payment.
+        transaction_amount:
+          type: number
+          format: float
+          description: Partial capture amount (must be ≤ original authorized amount).
+        date_of_expiration:
+          type: string
+          format: date-time
+          description: New expiration date for cash payment methods.
+
+    PaymentPayer:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "customer@example.com"
+        id:
+          type: string
+          description: MercadoPago user ID (for registered users).
+        identification:
+          $ref: "#/components/schemas/Identification"
+        type:
+          type: string
+          enum: [customer, registered, guest]
+
+    PaymentAdditionalInfo:
+      type: object
+      description: Additional context for fraud scoring and installment calculation.
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentItem"
+        payer:
+          type: object
+          properties:
+            first_name:
+              type: string
+            last_name:
+              type: string
+            phone:
+              $ref: "#/components/schemas/Phone"
+            address:
+              $ref: "#/components/schemas/Address"
+            registration_date:
+              type: string
+              format: date-time
+        shipments:
+          type: object
+          properties:
+            receiver_address:
+              $ref: "#/components/schemas/Address"
+
+    PaymentItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: string
+        quantity:
+          type: integer
+        unit_price:
+          type: number
+          format: float
+
     Payment:
       type: object
-      description: A MercadoPago payment object
+      description: A MercadoPago payment object.
       properties:
         id:
           type: integer
-          description: Payment unique identifier
+          description: Payment unique identifier.
           example: 1234567890
         date_created:
           type: string
           format: date-time
-          example: '2024-01-15T10:30:00.000-03:00'
         date_approved:
           type: string
           format: date-time
@@ -29,60 +212,100 @@ components:
           nullable: true
         operation_type:
           type: string
-          enum:
-            - regular_payment
-            - money_transfer
-            - recurring_payment
-            - account_fund
-            - payment_addition
-            - cellphone_recharge
-            - pos_payment
-            - money_exchange
+          enum: [regular_payment, money_transfer, recurring_payment, account_fund, payment_addition, cellphone_recharge, pos_payment, money_exchange]
         issuer_id:
           type: string
           nullable: true
         payment_method_id:
           type: string
           example: visa
+        payment_method:
+          type: object
+          description: Full payment method object.
+          properties:
+            id:
+              type: string
+            type:
+              type: string
+            issuer_id:
+              type: string
+            data:
+              type: object
         payment_type_id:
           type: string
-          enum:
-            - account_money
-            - ticket
-            - bank_transfer
-            - atm
-            - credit_card
-            - debit_card
-            - prepaid_card
-            - digital_currency
-            - digital_wallet
-            - voucher_card
-            - crypto
-            - pix
+          enum: [account_money, ticket, bank_transfer, atm, credit_card, debit_card, prepaid_card, digital_currency, digital_wallet, voucher_card, crypto, pix]
         status:
           type: string
-          enum:
-            - pending
-            - approved
-            - authorized
-            - in_process
-            - in_mediation
-            - rejected
-            - cancelled
-            - refunded
-            - charged_back
-          description: >-
-            Current payment status. Key values: approved — payment completed successfully; pending — awaiting payer
-            action (e.g., Boleto payment); in_process — under review; rejected — payment declined.
+          enum: [pending, approved, authorized, in_process, in_mediation, rejected, cancelled, refunded, charged_back]
+          description: >
+            approved — payment completed successfully;
+            pending — awaiting payer action (e.g., Boleto payment);
+            in_process — under review;
+            rejected — payment declined.
           example: approved
         status_detail:
           type: string
-          description: Detailed reason for the current status
+          description: Detailed reason for the current status.
+          enum:
+            - accredited
+            - partially_refunded
+            - pending_capture
+            - pending_review_manual
+            - pending_contingency
+            - pending_challenge
+            - pending_waiting_payment
+            - pending_waiting_transfer
+            - pending_waiting_for_remedy
+            - pending_provider_response
+            - in_process
+            - expired
+            - settled
+            - refunded
+            - offline_process
+            - rejected_by_bank
+            - rejected_by_regulations
+            - rejected_high_risk
+            - cc_rejected_bad_filled_card_number
+            - cc_rejected_bad_filled_date
+            - cc_rejected_bad_filled_other
+            - cc_rejected_bad_filled_security_code
+            - cc_rejected_blacklist
+            - cc_rejected_call_for_authorize
+            - cc_rejected_card_disabled
+            - cc_rejected_card_error
+            - cc_rejected_card_type_not_allowed
+            - cc_rejected_duplicated_payment
+            - cc_rejected_high_risk
+            - cc_rejected_insufficient_amount
+            - cc_rejected_invalid_installments
+            - cc_rejected_max_attempts
+            - cc_rejected_other_reason
+            - cc_rejected_time_out
           example: accredited
         currency_id:
-          $ref: '#/components/schemas/CurrencyId'
+          $ref: "#/components/schemas/CurrencyId"
         description:
           type: string
+        live_mode:
+          type: boolean
+          description: true = production environment.
+        sponsor_id:
+          type: string
+          nullable: true
+        authorization_code:
+          type: string
+          description: Transaction authorization code from the acquirer.
+          nullable: true
+        money_release_schema:
+          type: string
+          nullable: true
+        counter_currency:
+          type: string
+          nullable: true
+          description: Cross-border conversion object.
+        collector_id:
+          type: string
+          description: ID of the user receiving the money (seller).
         payer:
           type: object
           properties:
@@ -92,7 +315,7 @@ components:
               type: string
               format: email
             identification:
-              $ref: '#/components/schemas/Identification'
+              $ref: "#/components/schemas/Identification"
             type:
               type: string
         metadata:
@@ -105,14 +328,21 @@ components:
         transaction_amount:
           type: number
           format: float
-          description: Original payment amount (decimal, not cents)
+          description: Original payment amount (decimal, not cents).
         transaction_amount_refunded:
           type: number
           format: float
-          description: Total amount refunded so far
+          description: Total amount refunded so far.
         coupon_amount:
           type: number
           format: float
+        differential_pricing_id:
+          type: string
+          nullable: true
+        deduction_schema:
+          type: string
+          nullable: true
+          description: MP pricing scheme applied to this payment.
         transaction_details:
           type: object
           properties:
@@ -128,7 +358,7 @@ components:
             external_resource_url:
               type: string
               format: uri
-              description: Boleto/OXXO/cash payment URL or barcode
+              description: Boleto/OXXO/cash payment URL or barcode.
             installment_amount:
               type: number
               format: float
@@ -136,20 +366,24 @@ components:
           type: boolean
         binary_mode:
           type: boolean
+        call_for_authorize_id:
+          type: string
+          nullable: true
+          description: Issuer-provided authorization ID.
         statement_descriptor:
           type: string
         installments:
           type: integer
         card:
           type: object
-          description: Card data (last 4 digits only — never full PAN)
+          description: Card data (last 4 digits only — never full PAN).
           properties:
             last_four_digits:
               type: string
-              example: '4321'
+              example: "4321"
             first_six_digits:
               type: string
-              example: '411111'
+              example: "411111"
             expiration_year:
               type: integer
             expiration_month:
@@ -166,331 +400,40 @@ components:
                 name:
                   type: string
                 identification:
-                  $ref: '#/components/schemas/Identification'
+                  $ref: "#/components/schemas/Identification"
         notification_url:
           type: string
           format: uri
           deprecated: true
         processing_mode:
           type: string
-          enum:
-            - aggregator
-            - gateway
-    PaymentAdditionalInfo:
-      type: object
-      description: Additional context for fraud scoring and installment calculation
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PaymentItem'
-        payer:
-          type: object
-          properties:
-            first_name:
-              type: string
-            last_name:
-              type: string
-            phone:
-              $ref: '#/components/schemas/Phone'
-            address:
-              $ref: '#/components/schemas/Address'
-            registration_date:
-              type: string
-              format: date-time
-        shipments:
-          type: object
-          properties:
-            receiver_address:
-              $ref: '#/components/schemas/Address'
-    PaymentAnalyticsResponse:
-      type: object
-      required:
-        - total_transactions
-        - total_volume
-        - success_rate
-        - period
-      properties:
-        average_transaction_amount:
-          format: decimal
-          description: Average transaction amount in the period
-          type: number
-          example: 127.45
-        total_volume:
-          format: decimal
-          description: Total payment volume in the specified currency
-          type: number
-          example: 125847.32
-        failed_transactions:
-          type: integer
-          description: Number of failed transactions
-          example: 23
-        currency:
+          enum: [aggregator, gateway]
+        merchant_account_id:
           type: string
-          description: Currency for monetary values
-          example: USD
-        total_transactions:
-          type: integer
-          description: Total number of transactions in the period
-          example: 1250
-        period:
-          type: object
-          required:
-            - start_date
-            - end_date
-          properties:
-            start_date:
-              format: date
-              description: Start date of the analytics period
-              type: string
-              example: '2024-01-01'
-            end_date:
-              format: date
-              description: End date of the analytics period
-              type: string
-              example: '2024-01-31'
-        success_rate:
-          format: percentage
-          description: Payment success rate as a percentage
-          type: number
-          minimum: 0
-          maximum: 100
-          example: 98.16
-        successful_transactions:
-          type: integer
-          description: Number of successful transactions
-          example: 1227
-    PaymentFees:
-      type: object
-      properties:
-        processing_fee:
-          type: number
-          format: decimal
-          description: Processing fee charged
-          example: 0.89
-        platform_fee:
-          type: number
-          format: decimal
-          description: Platform fee charged
-          example: 1.5
-        total_fees:
-          type: number
-          format: decimal
-          description: Total fees charged
-          example: 2.39
-    PaymentItem:
-      type: object
-      properties:
-        id:
+          nullable: true
+          description: Gateway model store code.
+        acquirer:
           type: string
-        title:
+          nullable: true
+          description: Acquirer name (gateway processing mode).
+        merchant_number:
           type: string
-        description:
-          type: string
-        category_id:
-          type: string
-        quantity:
-          type: integer
-        unit_price:
-          type: number
-          format: float
-    PaymentListResponse:
+          nullable: true
+          description: Merchant number for gateway model.
+
+    RefundRequest:
       type: object
-      required:
-        - data
-        - pagination
-      properties:
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-        data:
-          type: array
-          description: List of payments
-          items:
-            $ref: '#/components/schemas/PaymentResponse'
-    PaymentMethod:
-      type: object
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          enum:
-            - credit_card
-            - debit_card
-            - bank_transfer
-            - digital_wallet
-            - cryptocurrency
-          description: Type of payment method
-        card:
-          $ref: '#/components/schemas/CardDetails'
-        bank_account:
-          $ref: '#/components/schemas/BankAccount'
-        digital_wallet:
-          $ref: '#/components/schemas/DigitalWallet'
-    PaymentMethodListResponse:
-      type: object
-      required:
-        - data
-      properties:
-        data:
-          type: array
-          description: List of stored payment methods
-          items:
-            $ref: '#/components/schemas/StoredPaymentMethodResponse'
-    PaymentMethodStoreRequest:
-      type: object
-      required:
-        - payment_method
-        - is_default
-      properties:
-        is_default:
-          description: Set as the default payment method for this customer
-          type: boolean
-          example: true
-        payment_method:
-          $ref: '#/components/schemas/PaymentMethod'
-    PaymentPayer:
-      type: object
-      required:
-        - email
-      properties:
-        email:
-          type: string
-          format: email
-          example: customer@example.com
-        id:
-          type: string
-          description: MercadoPago user ID (for registered users)
-        identification:
-          $ref: '#/components/schemas/Identification'
-        type:
-          type: string
-          enum:
-            - customer
-            - registered
-            - guest
-    PaymentRequest:
-      type: object
-      required:
-        - amount
-        - currency
-        - payment_method
-        - merchant_id
+      description: Request body for creating a refund. Omit amount for a full refund.
       properties:
         amount:
           type: number
-          format: decimal
-          minimum: 0.01
-          description: Payment amount in the specified currency
-          example: 29.99
-        currency:
-          type: string
-          pattern: ^[A-Z]{3}$
-          description: ISO 4217 currency code
-          example: USD
-        payment_method:
-          $ref: '#/components/schemas/PaymentMethod'
-        merchant_id:
-          type: string
-          format: uuid
-          description: Unique identifier for the merchant
-          example: 550e8400-e29b-41d4-a716-446655440000
-        customer_id:
-          type: string
-          format: uuid
-          description: Unique identifier for the customer
-          example: 123e4567-e89b-12d3-a456-426614174000
-        description:
-          type: string
-          maxLength: 500
-          description: Payment description or reference
-          example: 'Order #12345 - Widget purchase'
-        metadata:
-          type: object
-          additionalProperties:
-            type: string
-          description: Additional metadata for the payment
-    PaymentResponse:
-      type: object
-      required:
-        - payment_id
-        - status
-        - amount
-        - currency
-        - created_at
-      properties:
-        payment_id:
-          type: string
-          format: uuid
-          description: Unique payment identifier
-          example: 987fcdeb-51a2-43d1-9c15-246531579012
-        status:
-          type: string
-          enum:
-            - pending
-            - processing
-            - completed
-            - failed
-            - cancelled
-          description: Current payment status
-          example: completed
-        amount:
-          type: number
-          format: decimal
-          description: Payment amount
-          example: 29.99
-        currency:
-          type: string
-          description: Payment currency
-          example: USD
-        transaction_id:
-          type: string
-          description: External transaction identifier from payment processor
-          example: txn_1234567890
-        created_at:
-          type: string
-          format: date-time
-          description: Payment creation timestamp
-          example: '2024-01-15T10:30:00Z'
-        updated_at:
-          type: string
-          format: date-time
-          description: Last update timestamp
-          example: '2024-01-15T10:30:15Z'
-        fees:
-          $ref: '#/components/schemas/PaymentFees'
-    PaymentSearchResult:
-      type: object
-      properties:
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Payment'
-        paging:
-          $ref: '#/components/schemas/Pagination'
-    PaymentUpdateRequest:
-      type: object
-      description: Request body to update a payment (capture, cancel, or extend expiration).
-      properties:
-        capture:
-          type: boolean
-          description: Set true to capture an authorized payment.
-        status:
-          type: string
-          enum:
-            - cancelled
-          description: Set to cancelled to cancel an authorized payment.
-        transaction_amount:
-          type: number
           format: float
-          description: Partial capture amount (must be ≤ original authorized amount).
-        date_of_expiration:
-          type: string
-          format: date-time
-          description: New expiration date for cash payment methods.
+          description: Amount to refund. Omit for a full refund.
+          example: 50.00
+
     Refund:
       type: object
-      description: A payment refund (partial or full)
+      description: A payment refund (partial or full).
       properties:
         id:
           type: integer
@@ -503,7 +446,10 @@ components:
         amount:
           type: number
           format: float
-          description: Refunded amount (decimal)
+          description: Refunded amount (decimal).
+        metadata:
+          type: object
+          additionalProperties: true
         source:
           type: object
           properties:
@@ -513,91 +459,39 @@ components:
               type: string
             type:
               type: string
+        unique_sequence_number:
+          type: string
+          description: Unique sequence identifier for this refund.
         refund_mode:
           type: string
-          enum:
-            - standard
-            - instant
+          enum: [standard, instant]
+        adjustment_amount:
+          type: number
+          format: float
+          description: Adjustment amount applied to this refund.
+          nullable: true
         status:
           type: string
-          enum:
-            - approved
-            - in_process
-            - rejected
-    RefundListResponse:
-      type: object
-      required:
-        - data
-        - pagination
-      properties:
-        data:
-          type: array
-          description: List of refunds for the payment
-          items:
-            $ref: '#/components/schemas/RefundResponse'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-    RefundRequest:
-      type: object
-      required:
-        - amount
-      properties:
-        amount:
-          format: decimal
-          description: Refund amount (must not exceed original payment amount)
-          type: number
-          minimum: 0.01
-          example: 15.99
+          enum: [approved, in_process, rejected]
         reason:
-          description: Reason for the refund
           type: string
-          maxLength: 500
-          example: Customer returned product
-        metadata:
-          type: object
-          description: Additional metadata for the refund
-          additionalProperties:
-            type: string
-    RefundResponse:
+          description: Reason for the refund.
+          nullable: true
+        label:
+          type: string
+          nullable: true
+        partition_details:
+          type: array
+          description: Split refund details for marketplace payments.
+          items:
+            type: object
+
+    PaymentSearchResult:
       type: object
-      required:
-        - refund_id
-        - payment_id
-        - amount
-        - status
-        - created_at
       properties:
-        refund_id:
-          format: uuid
-          description: Unique refund identifier
-          type: string
-          example: ref_123e4567-e89b-12d3-a456-426614174000
-        updated_at:
-          format: date-time
-          description: Last update timestamp
-          type: string
-          example: '2024-01-15T11:30:15Z'
-        payment_id:
-          format: uuid
-          description: Original payment identifier
-          type: string
-          example: 987fcdeb-51a2-43d1-9c15-246531579012
-        created_at:
-          format: date-time
-          description: Refund creation timestamp
-          type: string
-          example: '2024-01-15T11:30:00Z'
-        amount:
-          format: decimal
-          description: Refunded amount
-          type: number
-          example: 15.99
-        status:
-          description: Current refund status
-          type: string
-          enum:
-            - pending
-            - processing
-            - completed
-            - failed
-          example: completed
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+        paging:
+          $ref: "#/components/schemas/Pagination"
