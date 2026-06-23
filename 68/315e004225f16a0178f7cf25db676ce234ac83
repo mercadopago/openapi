@@ -1,0 +1,19 @@
+apps.yaml
+  s_be089a32e29c50::t_420326b9b066c8 13,19,62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "68315e004225f16a0178f7cf25db676ce234ac83",
+  "prompts": {},
+  "sessions": {
+    "s_be089a32e29c50": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a82fadcd-2e42-48df-9936-d0391cdef846",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "lpinillacuev <lina.pinillacuevas@mercadolibre.com.co>"
+    }
+  }
+}
