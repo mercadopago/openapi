@@ -22,9 +22,9 @@ jobs:
 
       - name: Create Pull Request
         id: create-pr
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
         with:
-          github-token: ${{ secrets.GH_PAT }}
+          github-token: ${{ secrets.GH_PAT || github.token }}
           script: |
             const branch = context.ref.replace('refs/heads/', '');
             const baseBranch = 'main';
@@ -69,15 +69,7 @@ jobs:
             const shortHash = branchMatch ? branchMatch[2] : 'unknown';
             const prTitle   = `[OpenAPI Sync] ${appName} | ${shortHash}_${today}`;
 
-            // Rotating reviewer — deterministic by ISO week number
             const reviewers = ['lpinillacuev', 'lsanchezgarc'];
-            const now = new Date();
-            const startOfYear = new Date(now.getFullYear(), 0, 1);
-            const weekNumber = Math.ceil(
-              ((now - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7
-            );
-            const reviewer = reviewers[weekNumber % reviewers.length];
-            console.log(`Week ${weekNumber} → reviewer: ${reviewer}`);
 
             let pr;
             try {
@@ -116,9 +108,9 @@ jobs:
 
             try {
               await github.rest.pulls.requestReviewers({
-                owner, repo, pull_number: pr.number, reviewers: [reviewer],
+                owner, repo, pull_number: pr.number, reviewers,
               });
-              console.log(`Reviewer requested: ${reviewer} — they will be notified by GitHub`);
+              console.log(`Reviewers requested: ${reviewers.join(', ')} — they will be notified by GitHub`);
             } catch (e) { console.warn(`Reviewer failed: ${e.message}`); }
 
             core.setOutput('pr_number', pr.number);
@@ -127,7 +119,7 @@ jobs:
       - name: Enable auto-merge
         if: steps.create-pr.outputs.pr_number != ''
         env:
-          GH_TOKEN: ${{ secrets.UPSTREAM_GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
         run: |
           gh pr merge ${{ steps.create-pr.outputs.pr_number }} \
             --auto \
