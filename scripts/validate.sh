@@ -54,7 +54,7 @@ for SPEC in "${SPECS[@]}"; do
     else
       RULESET_ARG="--ruleset spectral:oas"
     fi
-    if spectral lint "$SPEC" $RULESET_ARG --fail-severity warn; then
+    if spectral lint "$SPEC" $RULESET_ARG --fail-severity error; then
       echo "  ✓ spectral passed"
     else
       echo "  ✗ spectral FAILED"
