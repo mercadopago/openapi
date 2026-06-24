@@ -1,0 +1,22 @@
+.github/workflows/validate-spec.yml
+  s_079412f763ffe7::t_b5d4c631697eda 31
+  s_079412f763ffe7::t_83f29a123dbb41 35-36
+.spectral.yaml
+  s_079412f763ffe7::t_1313c9c485a440 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "5750b585131ab5940c3314bad6683311c92a3ba8",
+  "prompts": {},
+  "sessions": {
+    "s_079412f763ffe7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0be1f815-76f8-43d2-88a1-ebffd0c4ce40",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "lpinillacuev <lina.pinillacuevas@mercadolibre.com.co>"
+    }
+  }
+}
