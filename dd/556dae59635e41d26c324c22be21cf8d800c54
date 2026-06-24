@@ -1,0 +1,19 @@
+.spectral.yaml
+  s_079412f763ffe7::t_da6d59008c295d 3-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "dd556dae59635e41d26c324c22be21cf8d800c54",
+  "prompts": {},
+  "sessions": {
+    "s_079412f763ffe7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0be1f815-76f8-43d2-88a1-ebffd0c4ce40",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "lpinillacuev <lina.pinillacuevas@mercadolibre.com.co>"
+    }
+  }
+}
