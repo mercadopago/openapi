@@ -116,13 +116,8 @@ jobs:
             core.setOutput('pr_number', pr.number);
             core.setOutput('pr_url', pr.html_url);
 
-      - name: Enable auto-merge
+      - name: Summary
         if: steps.create-pr.outputs.pr_number != ''
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
         run: |
-          gh pr merge ${{ steps.create-pr.outputs.pr_number }} \
-            --auto \
-            --squash \
-            --repo mercadopago/openapi
-          echo "Auto-merge enabled on PR #${{ steps.create-pr.outputs.pr_number }}"
+          echo "PR #${{ steps.create-pr.outputs.pr_number }} created — requires manual review and approval before merge."
+          echo "PR URL: ${{ steps.create-pr.outputs.pr_url }}"
