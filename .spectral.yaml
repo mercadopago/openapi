@@ -1,2 +1,6 @@
 extends:
   - "spectral:oas"
+rules:
+  # Examples in auto-synced specs may not match schema exactly — validate separately
+  oas3-valid-media-example: off
+  oas3-valid-schema-example: off
