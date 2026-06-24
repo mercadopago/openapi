@@ -52,7 +52,7 @@ for SPEC in "${SPECS[@]}"; do
     if [[ -f "$SPECTRAL_RULESET" ]]; then
       RULESET_ARG="--ruleset $SPECTRAL_RULESET"
     else
-      RULESET_ARG="--ruleset @stoplight/spectral-openapi"
+      RULESET_ARG="--ruleset spectral:oas"
     fi
     if spectral lint "$SPEC" $RULESET_ARG --fail-severity warn; then
       echo "  ✓ spectral passed"
