@@ -1,2 +1,2 @@
 extends:
-  - "@stoplight/spectral-openapi"
+  - "spectral:oas"
