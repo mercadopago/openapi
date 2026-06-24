@@ -24,37 +24,20 @@ jobs:
         id: create-pr
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
         with:
-          github-token: ${{ secrets.UPSTREAM_GH_TOKEN }}
+          github-token: ${{ secrets.GH_PAT }}
           script: |
             const branch = context.ref.replace('refs/heads/', '');
             const baseBranch = 'main';
-            // PR targets the upstream repo; branch lives in the fork
-            const upstreamOwner = 'mercadopago';
-            const forkOwner = context.repo.owner;
+            const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            const { data: commit } = await github.rest.repos.getCommit({
-              owner: forkOwner,
-              repo,
-              ref: context.sha,
-            });
-
-            const commitMessage = commit.commit.message || '';
-            const lines = commitMessage.split('\n');
-            const body = lines.length > 2
-              ? lines.slice(2).join('\n').trim()
-              : lines.slice(1).join('\n').trim() || commitMessage;
-
-            // head must be "forkOwner:branch" for cross-fork PRs
-            const headRef = `${forkOwner}:${branch}`;
-
-            // Check if PR already exists on the upstream repo
+            // If dx-bot-sync-specs already created the PR, just find and update it
             let existingPR = null;
             try {
               const { data: openPRs } = await github.rest.pulls.list({
-                owner: upstreamOwner,
+                owner,
                 repo,
-                head: headRef,
+                head: branch,
                 base: baseBranch,
                 state: 'open',
               });
@@ -64,24 +47,22 @@ jobs:
             }
 
             if (existingPR) {
-              console.log(`PR already exists: #${existingPR.number}`);
-              try {
-                await github.rest.pulls.update({
-                  owner: upstreamOwner,
-                  repo,
-                  pull_number: existingPR.number,
-                  body: body || existingPR.body,
-                });
-              } catch (error) {
-                console.warn(`Failed to update PR body: ${error.message}`);
-              }
+              console.log(`PR already exists: #${existingPR.number} (${existingPR.html_url})`);
               core.setOutput('pr_number', existingPR.number);
               core.setOutput('pr_url', existingPR.html_url);
               return;
             }
 
-            // Branch format: enhancement/automatic-spec-{appName}/spec3-{hash}
-            // Title format:  [OpenAPI Sync] {appName} | {hash}_{date}
+            // Fallback: create PR if dx-bot-sync-specs didn't (e.g. token issue)
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner, repo, ref: context.sha,
+            });
+            const commitMessage = commit.commit.message || '';
+            const lines = commitMessage.split('\n');
+            const body = lines.length > 2
+              ? lines.slice(2).join('\n').trim()
+              : lines.slice(1).join('\n').trim() || commitMessage;
+
             const today = new Date().toISOString().slice(0, 10);
             const branchMatch = branch.match(/automatic-spec-([^\/]+)\/spec3-([^-\/]+)$/);
             const appName   = branchMatch ? branchMatch[1] : branch;
@@ -89,10 +70,7 @@ jobs:
             const prTitle   = `[OpenAPI Sync] ${appName} | ${shortHash}_${today}`;
 
             // Rotating reviewer — deterministic by ISO week number
-            const reviewers = [
-              'lpinillacuev',
-              'lsanchezgarc',
-            ];
+            const reviewers = ['lpinillacuev', 'lsanchezgarc'];
             const now = new Date();
             const startOfYear = new Date(now.getFullYear(), 0, 1);
             const weekNumber = Math.ceil(
@@ -101,14 +79,12 @@ jobs:
             const reviewer = reviewers[weekNumber % reviewers.length];
             console.log(`Week ${weekNumber} → reviewer: ${reviewer}`);
 
-            // Create PR on the upstream repo from the fork branch
             let pr;
             try {
               const { data: newPR } = await github.rest.pulls.create({
-                owner: upstreamOwner,
-                repo,
+                owner, repo,
                 title: prTitle,
-                head: headRef,
+                head: branch,
                 base: baseBranch,
                 body: body || 'Automatically synced from Fury Spec Hub',
                 draft: false,
@@ -117,11 +93,7 @@ jobs:
             } catch (error) {
               if (error.status === 422 && error.message?.includes('already exists')) {
                 const { data: allPRs } = await github.rest.pulls.list({
-                  owner: upstreamOwner,
-                  repo,
-                  head: headRef,
-                  base: baseBranch,
-                  state: 'all',
+                  owner, repo, head: branch, base: baseBranch, state: 'all',
                 });
                 if (allPRs.length > 0) {
                   existingPR = allPRs.find(p => p.state === 'open') || allPRs[0];
@@ -135,24 +107,18 @@ jobs:
 
             console.log(`PR created: #${pr.number} (${pr.html_url})`);
 
-            // Labels
             try {
               await github.rest.issues.addLabels({
-                owner: upstreamOwner,
-                repo,
-                issue_number: pr.number,
+                owner, repo, issue_number: pr.number,
                 labels: ['automated', 'openapi-sync'],
               });
             } catch (e) { console.warn(`Labels failed: ${e.message}`); }
 
-            // Reviewer
             try {
               await github.rest.pulls.requestReviewers({
-                owner: upstreamOwner,
-                repo,
-                pull_number: pr.number,
-                reviewers: [reviewer],
+                owner, repo, pull_number: pr.number, reviewers: [reviewer],
               });
+              console.log(`Reviewer requested: ${reviewer} — they will be notified by GitHub`);
             } catch (e) { console.warn(`Reviewer failed: ${e.message}`); }
 
             core.setOutput('pr_number', pr.number);
