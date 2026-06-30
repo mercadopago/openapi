@@ -1,0 +1,115 @@
+scripts/build_reference.py
+  s_e425cb4449fff2::t_e84cb163660a97 517-564,567,569-574,580-582,585,588-592,599-600,602-612,615,617-618,620-622,624,626,630-634
+  s_e425cb4449fff2::t_c401bb04e3b911 1-80,84-85,87-516,583-584,586-587,593-598,601,613-614,616,619,623,625,627-629,635-638
+  s_e425cb4449fff2::t_0109ebedfb2758 82-83,86
+  s_e425cb4449fff2::t_35f66c88f4e3db 81
+  s_e425cb4449fff2::t_07a6dc1e62d033 565-566,568,575-579
+by-product/preferences/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-663
+by-product/oauth/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-312
+by-product/merchant_orders/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-1589
+by-product/subscriptions/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-2249
+by-product/customers/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-896
+scripts/generate_product_diff.py
+  s_e425cb4449fff2::t_f5bc66bfadacb1 1-442
+spec3.reference.yaml
+  s_e425cb4449fff2::t_79e3946a0297e0 1-14560
+by-product/chargebacks/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-208
+.github/workflows/validate-policy.yml
+  s_04096a9d2f1f5c::t_8ee1c177d63c5c 1-20,22-37
+  s_04096a9d2f1f5c::t_4b221ebd0812ca 21
+.github/workflows/pr-on-push.yml
+  s_04096a9d2f1f5c::t_923e4ab8650e24 30
+  s_04096a9d2f1f5c::t_6d896f8888aa27 124
+by-product/preferences/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-1130
+spec3.reference.json
+  s_e425cb4449fff2::t_eee1f6fc1a535f 1-22255
+scripts/validate-policy.py
+  s_04096a9d2f1f5c::t_4db83338da6cda 1-129
+by-product/payments/diff.yaml
+  s_e425cb4449fff2::t_0e6a4bd9ee0ed2 1-114
+by-product/stores/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-461
+by-product/payments/example-request.http
+  s_e425cb4449fff2::t_6978009d7e7168 1,3,6,8-10,12-14,127,132-134,183-186,224,254-256,287-290,315-317,321-323,415,435,452,503,518,526
+  s_e425cb4449fff2::t_cdfce6624a1792 2,4-5,7,11,15-126,128-131,135-182,187-223,225-253,257-286,291-314,318-320,324-414,416-434,436-451,453-502,504-517,519-525,527-597
+apps.yaml
+  s_04096a9d2f1f5c::t_253c56b6a55873 3-14,22-26,33-37,44-48,55-59,67-71,78-82,89-93,100-104,111-115,122-126
+by-product/payments/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-2806
+by-product/stores/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-423
+by-product/payment_methods/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-386
+by-product/subscriptions/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-856
+by-product/merchant_orders/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-515
+by-product/chargebacks/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-299
+scripts/bundle.py
+  s_e425cb4449fff2::t_60006f90b131bb 609
+  s_e425cb4449fff2::t_cf8293dfaa9043 553,556
+  s_e425cb4449fff2::t_d903870d8be505 570
+  s_e425cb4449fff2::t_5a40ba4a18e4c8 585,601-608,610-615
+  s_e425cb4449fff2::t_5757fc6147c3ca 515-516,529-530
+by-product/.changed-products
+  s_e425cb4449fff2::t_0e6a4bd9ee0ed2 1
+by-product/payments/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-1115
+by-product/pos/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-1949
+by-product/payments/payload.yaml
+  s_e425cb4449fff2::t_e69973140baacc 1-1230
+by-product/customers/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-1990
+by-product/oauth/spec3.reference.json
+  s_e425cb4449fff2::t_9fd726ef8a03b3 1-289
+scripts/push_to_api.py
+  s_e425cb4449fff2::t_1a54acc3390fc0 1-4,7,10-11,13-14,16-56,58-59,74-76,91,100,102-105,127,147,155,166-167,171-175,177-183,186-228,232,235-253,255-266
+  s_e425cb4449fff2::t_6aa40d5b32ed11 5-6,8-9,12,15
+  s_e425cb4449fff2::t_0c3e60ff13ae57 57,60-73,77-90,92-99,101,128-146,148-149,153-154,156-165,169-170,176,184-185
+  s_e425cb4449fff2::t_8e77b9774a2db0 106-126,150-152,168
+  s_e425cb4449fff2::t_d814732d201aa7 229-231,233-234
+  s_e425cb4449fff2::t_ece727eb74d8de 254
+by-product/payment_methods/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-368
+.github/workflows/trigger-devsite-sync.yml
+  s_e425cb4449fff2::t_bc9c7a0e85cf11 193-194,199-202,204,208-209,211
+  s_e425cb4449fff2::t_0729aba835966e 86-112,114
+  s_e425cb4449fff2::t_7a1fb05a177c66 113,115-129
+  s_e425cb4449fff2::t_68026e197e5d20 195-198,203,205-207,210
+  s_e425cb4449fff2::t_03489f0b7e9f0e 11-14,18-20
+by-product/pos/spec3.yaml
+  s_e425cb4449fff2::t_240c63322bb97e 1-919
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "bad36e5820c39524da2443dd425c329f0c211621",
+  "prompts": {},
+  "sessions": {
+    "s_04096a9d2f1f5c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5a0a7afc-b248-41e9-a6b9-92898eb4c55a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "lpinillacuev <lina.pinillacuevas@mercadolibre.com.co>"
+    },
+    "s_e425cb4449fff2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ecfc58bd-daff-4bb5-b5b6-ab652e8da7f4",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "lpinillacuev <lina.pinillacuevas@mercadolibre.com.co>"
+    }
+  }
+}
