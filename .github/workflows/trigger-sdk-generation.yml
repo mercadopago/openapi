@@ -1,0 +1,96 @@
+name: Trigger SDK generation
+
+# Triggered when spec3.yaml lands on the target branch (auto-merge from bot PR).
+#
+# Full flow:
+#   spec3.yaml merges to feature/add-fury-spec (testing) or main (production)
+#     → Step 1: generate_product_diff.py
+#               Compares HEAD~1 vs HEAD to detect what changed per product.
+#               Produces by-product/{product}/diff.yaml for each changed product.
+#     → Step 2: push_to_sdk.py
+#               Reads diff.yaml + spec3.yaml per product.
+#               Transforms changes into the SDK generator API format.
+#               POSTs to spec-agent-generator for each sdk target in apps.yaml.
+#
+# Apps are only processed if they have an sdk[] entry in apps.yaml.
+# SDK language, site_id and target_repo are configured per app in apps.yaml.
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/add-fury-spec'
+    paths:
+      - spec3.yaml
+
+jobs:
+  trigger-sdk:
+    name: spec3.yaml → SDK generation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout openapi
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GH_PAT || github.token }}
+          path: openapi
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install pyyaml requests
+
+      # ── Step 1: Generate per-product diffs ────────────────────────────────────
+      # Compares spec3.yaml HEAD~1 vs HEAD to identify exactly what changed
+      # per product. Produces by-product/{product}/diff.yaml.
+      # If a product has no changes, no diff.yaml is written and it is skipped.
+      - name: Generate per-product diffs
+        id: product_diff
+        run: python openapi/scripts/generate_product_diff.py
+        working-directory: ${{ github.workspace }}
+
+      - name: Read changed products
+        id: changed
+        run: |
+          if [ -f openapi/by-product/.changed-products ]; then
+            CHANGED=$(cat openapi/by-product/.changed-products)
+          else
+            CHANGED=""
+          fi
+          echo "products=${CHANGED}" >> $GITHUB_OUTPUT
+          echo "has_changes=$([ -n "$CHANGED" ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "Changed products: ${CHANGED:-none}"
+
+      # ── Step 2: Trigger SDK generation for changed products ───────────────────
+      # push_to_sdk.py reads each product's diff.yaml and spec3.yaml,
+      # transforms them into the SDK generator API format, and POSTs
+      # to spec-agent-generator for each sdk target configured in apps.yaml.
+      - name: Trigger SDK generation
+        if: steps.changed.outputs.has_changes == 'true'
+        env:
+          SDK_GENERATOR_URL: ${{ secrets.SDK_GENERATOR_URL || 'https://spec-agent-generator-test.melioffice.com' }}
+          SDK_GENERATOR_TOKEN: ${{ secrets.SDK_GENERATOR_TOKEN }}
+          CHANGED_PRODUCTS: ${{ steps.changed.outputs.products }}
+        run: |
+          python openapi/scripts/push_to_sdk.py \
+            --apps "$CHANGED_PRODUCTS" \
+            --openapi-path openapi
+        working-directory: ${{ github.workspace }}
+
+      - name: Summary
+        if: steps.changed.outputs.has_changes == 'true'
+        run: |
+          echo "## SDK generation triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Changed products:** ${{ steps.changed.outputs.products }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Triggered by merge to \`${{ github.ref_name }}\`_" >> $GITHUB_STEP_SUMMARY
+
+      - name: No changes
+        if: steps.changed.outputs.has_changes != 'true'
+        run: echo "No product changes detected — SDK generation skipped."

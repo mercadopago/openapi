@@ -1,0 +1,144 @@
+name: PR Commands
+
+# Listens for reviewer commands on openapi sync PRs.
+#
+# Supported commands (comment on a PR):
+#   /approve /v1/path/to/endpoint        — moves path to whitelist in KVS
+#   /reject  /v1/path/to/endpoint        — moves path to blacklist in KVS
+#   /reject  /v1/path/to/endpoint reason: not ready
+#
+# After each command, the bot updates the GitHub status check (bot/pending-paths).
+# When all pending paths are decided, the status check turns green and merge is unblocked.
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  handle-command:
+    name: Handle /approve or /reject command
+    runs-on: ubuntu-latest
+    # Only run on PR comments with a known command
+    if: |
+      github.event.issue.pull_request &&
+      (startsWith(github.event.comment.body, '/approve') ||
+       startsWith(github.event.comment.body, '/reject'))
+
+    steps:
+      - name: Parse command
+        id: parse
+        run: |
+          COMMENT="${{ github.event.comment.body }}"
+          COMMENTER="${{ github.event.comment.user.login }}"
+
+          # Determine action
+          if echo "$COMMENT" | grep -q "^/approve"; then
+            ACTION="approve"
+          else
+            ACTION="reject"
+          fi
+
+          # Extract path (second token after the command)
+          API_PATH=$(echo "$COMMENT" | awk '{print $2}')
+
+          # Extract reason if present (everything after "reason:")
+          REASON=$(echo "$COMMENT" | sed -n 's/.*reason:[[:space:]]*//p' | xargs)
+
+          # Extract app from PR branch name: enhancement/automatic-spec-{app}/...
+          PR_NUMBER="${{ github.event.issue.number }}"
+          BRANCH=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName' 2>/dev/null || echo "")
+          APP=$(echo "$BRANCH" | sed -n 's|enhancement/automatic-spec-\([^/]*\)/.*|\1|p')
+
+          # Get commit SHA from PR head
+          COMMIT_SHA=$(gh pr view "$PR_NUMBER" --json headRefOid --jq '.headRefOid' 2>/dev/null || echo "")
+
+          echo "action=$ACTION"          >> $GITHUB_OUTPUT
+          echo "api_path=$API_PATH"      >> $GITHUB_OUTPUT
+          echo "reason=$REASON"          >> $GITHUB_OUTPUT
+          echo "app=$APP"                >> $GITHUB_OUTPUT
+          echo "commenter=$COMMENTER"    >> $GITHUB_OUTPUT
+          echo "pr_number=$PR_NUMBER"    >> $GITHUB_OUTPUT
+          echo "commit_sha=$COMMIT_SHA"  >> $GITHUB_OUTPUT
+
+          echo "Command parsed: $ACTION $API_PATH for app=$APP by $COMMENTER"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Validate parsed command
+        if: steps.parse.outputs.app == '' || steps.parse.outputs.api_path == ''
+        run: |
+          echo "⚠️ Could not parse command or determine app from PR branch."
+          echo "Branch format must be: enhancement/automatic-spec-{app}/..."
+          exit 1
+
+      - name: Call bot API — approve or reject
+        id: bot_call
+        run: |
+          ACTION="${{ steps.parse.outputs.action }}"
+          APP="${{ steps.parse.outputs.app }}"
+          API_PATH="${{ steps.parse.outputs.api_path }}"
+          REASON="${{ steps.parse.outputs.reason }}"
+          COMMENTER="${{ steps.parse.outputs.commenter }}"
+          PR_NUMBER="${{ steps.parse.outputs.pr_number }}"
+          COMMIT_SHA="${{ steps.parse.outputs.commit_sha }}"
+          BOT_URL="${{ secrets.BOT_SYNC_SPECS_URL }}"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "path": "$API_PATH",
+            "approvedBy": "$COMMENTER",
+            "decidedBy": "$COMMENTER",
+            "reason": "$REASON",
+            "prNumber": $PR_NUMBER,
+            "commitSha": "$COMMIT_SHA"
+          }
+          EOF
+          )
+
+          RESPONSE=$(curl -s -o /tmp/bot_response.json -w "%{http_code}" \
+            -X POST "${BOT_URL}/openapi/policy/${APP}/${ACTION}" \
+            -H "Content-Type: application/json" \
+            -H "X-github-token: ${{ secrets.GH_PAT }}" \
+            -d "$PAYLOAD")
+
+          echo "Bot response HTTP: $RESPONSE"
+          cat /tmp/bot_response.json
+
+          if [ "$RESPONSE" != "200" ]; then
+            echo "❌ Bot API call failed with HTTP $RESPONSE"
+            exit 1
+          fi
+
+          PENDING_COUNT=$(cat /tmp/bot_response.json | python3 -c \
+            "import sys,json; print(json.load(sys.stdin).get('pendingCount', -1))")
+          echo "pending_count=$PENDING_COUNT" >> $GITHUB_OUTPUT
+          echo "✅ Command processed. Pending paths remaining: $PENDING_COUNT"
+
+      - name: Comment result on PR
+        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
+        with:
+          github-token: ${{ secrets.GH_PAT || github.token }}
+          script: |
+            const action = '${{ steps.parse.outputs.action }}';
+            const apiPath = '${{ steps.parse.outputs.api_path }}';
+            const commenter = '${{ steps.parse.outputs.commenter }}';
+            const pendingCount = parseInt('${{ steps.bot_call.outputs.pending_count }}', 10);
+            const prNumber = parseInt('${{ steps.parse.outputs.pr_number }}', 10);
+
+            const emoji = action === 'approve' ? '✅' : '❌';
+            const actionLabel = action === 'approve' ? 'approved (whitelist)' : 'rejected (blacklist)';
+
+            let body = `${emoji} **@${commenter}** ${actionLabel} \`${apiPath}\`\n\n`;
+
+            if (pendingCount === 0) {
+              body += '🎉 All paths have been decided — the PR is now unblocked and ready to merge.';
+            } else {
+              body += `⏳ **${pendingCount}** path(s) still require a decision before merging.`;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
