@@ -1,36 +1,165 @@
 components:
   schemas:
+    Address:
+      type: object
+      required:
+        - street
+        - city
+        - state
+        - postal_code
+        - country
+      properties:
+        street:
+          type: string
+          description: Street address
+          example: 123 Main St
+        city:
+          type: string
+          description: City name
+          example: New York
+        country:
+          pattern: ^[A-Z]{2}$
+          description: ISO 3166-1 alpha-2 country code
+          type: string
+          example: US
+        state:
+          type: string
+          description: State or province
+          example: NY
+        postal_code:
+          type: string
+          description: Postal or ZIP code
+          example: '10001'
+    AutoRecurring:
+      type: object
+      required:
+        - frequency
+        - frequency_type
+        - transaction_amount
+        - currency_id
+      properties:
+        frequency:
+          type: integer
+          description: Billing interval (e.g., 1 for monthly, 7 for weekly)
+          example: 1
+        frequency_type:
+          type: string
+          enum:
+            - months
+            - days
+          description: Unit for the billing interval
+          example: months
+        transaction_amount:
+          type: number
+          format: float
+          description: Amount to charge each cycle (decimal, not cents)
+          example: 29.9
+        currency_id:
+          $ref: '#/components/schemas/CurrencyId'
+        free_trial:
+          type: object
+          description: Optional free trial period before billing starts
+          properties:
+            frequency:
+              type: integer
+              example: 14
+            frequency_type:
+              type: string
+              enum:
+                - months
+                - days
+              example: days
+        repetitions:
+          type: integer
+          description: Total number of billing cycles (null = indefinite)
+          nullable: true
+    BankAccount:
+      type: object
+      required:
+        - account_number
+        - routing_number
+      properties:
+        account_number:
+          type: string
+          description: Bank account number
+        routing_number:
+          type: string
+          description: Bank routing number
+        account_type:
+          type: string
+          enum:
+            - checking
+            - savings
+          description: Type of bank account
+    CurrencyId:
+      type: string
+      description: ISO 4217 currency code for the applicable site
+      enum:
+        - ARS
+        - BRL
+        - MXN
+        - CLP
+        - COP
+        - PEN
+        - UYU
+        - BOB
+        - PYG
+        - USD
+        - CRC
+        - DOP
+        - HNL
+        - NIO
+        - GTQ
+        - VES
+      x-mp-sites:
+        - MLA
+        - MLB
+        - MLM
+        - MLC
+        - MCO
+        - MPE
+        - MLU
+      example: BRL
+    DigitalWallet:
+      type: object
+      required:
+        - provider
+        - wallet_id
+      properties:
+        provider:
+          type: string
+          enum:
+            - paypal
+            - apple_pay
+            - google_pay
+            - venmo
+          description: Digital wallet provider
+        wallet_id:
+          type: string
+          description: Wallet identifier or token
     Error:
       type: object
       required:
-      - status
-      - error
-      - message
+        - error
+        - message
       properties:
-        status:
-          type: integer
-          description: HTTP status code
-          example: 400
         error:
           type: string
-          description: Error code identifier
-          example: bad_request
-          x-mp-sites:
-          - MLA
-          - MLB
-          - MLM
-          - MLC
-          - MCO
-          - MPE
-          - MLU
+          description: Error code
+          example: invalid_payment_method
         message:
           type: string
-          description: Human-readable error message (English)
-          example: The access token is invalid
-        cause:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorCause'
+          description: Human-readable error message
+          example: The provided payment method is invalid or expired
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: '2024-01-15T10:30:00Z'
     ErrorCause:
       type: object
       properties:
@@ -43,46 +172,6 @@ components:
         data:
           type: string
           nullable: true
-    Money:
-      type: object
-      description: 'Monetary amount. MercadoPago uses decimal amounts (e.g., 100.50 for R$100,50), NOT integer cents. Precision:
-        2 decimal places for most currencies; 0 for CLP.'
-      properties:
-        amount:
-          type: number
-          format: float
-          example: 100.5
-        currency_id:
-          $ref: '#/components/schemas/CurrencyId'
-    CurrencyId:
-      type: string
-      description: ISO 4217 currency code for the applicable site
-      enum:
-      - ARS
-      - BRL
-      - MXN
-      - CLP
-      - COP
-      - PEN
-      - UYU
-      - BOB
-      - PYG
-      - USD
-      - CRC
-      - DOP
-      - HNL
-      - NIO
-      - GTQ
-      - VES
-      x-mp-sites:
-      - MLA
-      - MLB
-      - MLM
-      - MLC
-      - MCO
-      - MPE
-      - MLU
-      example: BRL
     Identification:
       type: object
       description: Payer identification document. Valid types vary by country.
@@ -95,33 +184,49 @@ components:
           type: string
           description: Identification number (no formatting — digits only)
           example: '12345678909'
-    Phone:
+    MediationResolution:
       type: object
+      description: Expected resolution options at mediation stage
       properties:
-        area_code:
+        type:
           type: string
-          example: '11'
-        number:
+          enum:
+            - refund
+            - return
+            - partial_refund
+        amount:
+          type: number
+          format: float
+        reason:
           type: string
-          example: '987654321'
-    Address:
+    Money:
       type: object
+      description: >-
+        Monetary amount. MercadoPago uses decimal amounts (e.g., 100.50 for R$100,50), NOT integer cents. Precision: 2
+        decimal places for most currencies; 0 for CLP.
       properties:
-        zip_code:
-          type: string
-          example: 01310-100
-        street_name:
-          type: string
-          example: Av. Paulista
-        street_number:
-          type: string
-          example: '1000'
-        city:
-          type: string
-        state:
-          type: string
-        country:
-          type: string
+        amount:
+          type: number
+          format: float
+          example: 100.5
+        currency_id:
+          $ref: '#/components/schemas/CurrencyId'
+    Pagination:
+      type: object
+      description: Pagination metadata returned in list/search responses
+      properties:
+        total:
+          type: integer
+          description: Total number of results
+          example: 42
+        limit:
+          type: integer
+          description: Results per page
+          example: 30
+        offset:
+          type: integer
+          description: Offset of the current page
+          example: 0
     Payer:
       type: object
       description: Payment payer information
@@ -140,9 +245,9 @@ components:
         type:
           type: string
           enum:
-          - customer
-          - registered
-          - guest
+            - customer
+            - registered
+            - guest
           description: Payer type
         first_name:
           type: string
@@ -152,70 +257,40 @@ components:
           $ref: '#/components/schemas/Phone'
         address:
           $ref: '#/components/schemas/Address'
-    StoreRequest:
+    Phone:
       type: object
-      required:
-      - name
       properties:
-        name:
+        area_code:
           type: string
-          description: Store display name
-          example: Main Branch — Paulista
-        external_id:
+          example: '11'
+        number:
           type: string
-          description: Your internal store identifier
-        business_hours:
-          type: object
-          properties:
-            monday:
-              type: array
-              items:
-                type: object
-                properties:
-                  open:
-                    type: string
-                    example: 09:00
-                  close:
-                    type: string
-                    example: '18:00'
-        location:
-          type: object
-          properties:
-            street_number:
-              type: string
-            street_name:
-              type: string
-            city_name:
-              type: string
-            state_name:
-              type: string
-            zip_code:
-              type: string
-            latitude:
-              type: number
-              format: float
-            longitude:
-              type: number
-              format: float
-    Store:
+          example: '987654321'
+    POS:
       allOf:
-      - $ref: '#/components/schemas/StoreRequest'
-      - type: object
-        properties:
-          id:
-            type: string
-            description: Store unique identifier
-          date_created:
-            type: string
-            format: date-time
-          date_last_updated:
-            type: string
-            format: date-time
+        - $ref: '#/components/schemas/POSRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+            qr_code:
+              type: string
+              description: QR code data string for this POS
+            qr_code_image:
+              type: string
+              format: uri
+              description: URL of QR code image
+            date_created:
+              type: string
+              format: date-time
+            date_last_updated:
+              type: string
+              format: date-time
     POSRequest:
       type: object
       required:
-      - name
-      - store_id
+        - name
+        - store_id
       properties:
         name:
           type: string
@@ -240,108 +315,152 @@ components:
           type: string
           format: uri
           description: Webhook URL for this specific POS
-    POS:
-      allOf:
-      - $ref: '#/components/schemas/POSRequest'
-      - type: object
-        properties:
-          id:
-            type: string
-          qr_code:
-            type: string
-            description: QR code data string for this POS
-          qr_code_image:
-            type: string
-            format: uri
-            description: URL of QR code image
-          date_created:
-            type: string
-            format: date-time
-          date_last_updated:
-            type: string
-            format: date-time
-    Pagination:
+    SendMessageRequest:
       type: object
-      description: Pagination metadata returned in list/search responses
+      required:
+        - message
       properties:
-        total:
-          type: integer
-          description: Total number of results
-          example: 42
-        limit:
-          type: integer
-          description: Results per page
-          example: 30
-        offset:
-          type: integer
-          description: Offset of the current page
-          example: 0
-  responses:
-    BadRequest:
-      description: Bad request — validation error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            status: 400
-            error: bad_request
-            message: 'Invalid parameter: transaction_amount must be greater than 0'
-    Unauthorized:
-      description: Missing or invalid access token
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            status: 401
-            error: unauthorized
-            message: Invalid access token
-    Forbidden:
-      description: Insufficient permissions for this operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UnprocessableEntity:
-      description: Business rule violation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            status: 422
-            error: unprocessable_entity
-            message: The card token has already been used
-    TooManyRequests:
-      description: Rate limit exceeded — wait before retrying
-      headers:
-        Retry-After:
-          schema:
-            type: integer
-          description: Seconds to wait before retrying this request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            status: 429
-            error: too_many_requests
-            message: Rate limit exceeded. Retry after the indicated number of seconds.
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      description: 'Access token for server-side API calls.
-
-        Use YOUR_ACCESS_TOKEN tokens for sandbox, APP_USR-xxx for production.
-
-        Send in the Authorization header ONLY — never as a URL query parameter
-
-        (?access_token=...) as query strings appear in server logs and proxy caches.'
+        message:
+          type: string
+          description: Text content of the message to send
+          example: I can provide the tracking code for the shipment.
+        attachments:
+          type: array
+          description: File IDs to attach (upload first via attachments endpoint)
+          items:
+            type: string
+    Store:
+      allOf:
+        - $ref: '#/components/schemas/StoreRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Store unique identifier
+            date_created:
+              type: string
+              format: date-time
+            date_last_updated:
+              type: string
+              format: date-time
+    StoredPaymentMethodResponse:
+      type: object
+      required:
+        - payment_method_id
+        - customer_id
+        - type
+        - is_default
+        - created_at
+      properties:
+        is_default:
+          description: Whether this is the default payment method
+          type: boolean
+          example: true
+        updated_at:
+          format: date-time
+          description: Last update timestamp
+          type: string
+          example: '2024-01-15T07:30:15Z'
+        payment_method_id:
+          format: uuid
+          description: Unique payment method identifier
+          type: string
+          example: pm_456e7890-a12b-34c5-d678-901234567890
+        created_at:
+          format: date-time
+          description: Payment method creation timestamp
+          type: string
+          example: '2024-01-15T07:30:00Z'
+        customer_id:
+          format: uuid
+          description: Customer identifier
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        last_four:
+          type: string
+          description: Last four digits of card (for card payments only)
+          example: '1111'
+        type:
+          description: Type of payment method
+          type: string
+          enum:
+            - credit_card
+            - debit_card
+            - bank_transfer
+            - digital_wallet
+            - cryptocurrency
+          example: credit_card
+    StoreRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Store display name
+          example: Main Branch — Paulista
+        external_id:
+          type: string
+          description: Your internal store identifier
+        business_hours:
+          type: object
+          properties:
+            monday:
+              type: array
+              items:
+                type: object
+                properties:
+                  open:
+                    type: string
+                    example: '09:00'
+                  close:
+                    type: string
+                    example: '18:00'
+        location:
+          type: object
+          properties:
+            street_number:
+              type: string
+            street_name:
+              type: string
+            city_name:
+              type: string
+            state_name:
+              type: string
+            zip_code:
+              type: string
+            latitude:
+              type: number
+              format: float
+            longitude:
+              type: number
+              format: float
+    ValidationResponse:
+      type: object
+      required:
+        - is_valid
+      properties:
+        is_valid:
+          type: boolean
+          description: Whether the payment method is valid
+          example: true
+        suggestions:
+          type: array
+          description: Suggestions for fixing validation issues
+          items:
+            type: string
+            example: Please check the expiry date
+        errors:
+          type: array
+          description: List of validation errors
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Validation error message
+                example: Card has expired
+              field:
+                type: string
+                description: Field that failed validation
+                example: expiry_month
