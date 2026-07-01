@@ -31,9 +31,9 @@ components:
             type:
               type: string
               enum:
-              - daily
-              - weekly
-              - monthly
+                - daily
+                - weekly
+                - monthly
         sftp_info:
           type: object
           description: SFTP destination for automatic delivery (optional)
@@ -50,9 +50,9 @@ components:
           type: string
           description: CSV column separator character
           enum:
-          - ','
-          - ;
-          - ''
+            - ','
+            - ;
+            - ''
           default: ','
         display_timezone:
           type: string
@@ -64,11 +64,46 @@ components:
           items:
             type: string
             format: email
+    ReportEntry:
+      type: object
+      description: A generated report file entry
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+            - available
+            - expired
+        date_created:
+          type: string
+          format: date-time
+        date_last_updated:
+          type: string
+          format: date-time
+        begin_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        file_name:
+          type: string
+          example: releases_report_2024-01-01_2024-01-31.csv
+    ReportListResult:
+      type: object
+      properties:
+        paging:
+          $ref: '#/components/schemas/Pagination'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportEntry'
     ReportRequest:
       type: object
       required:
-      - begin_date
-      - end_date
+        - begin_date
+        - end_date
       description: Request body to generate a one-time report
       properties:
         begin_date:
@@ -92,10 +127,10 @@ components:
         status:
           type: string
           enum:
-          - pending
-          - in_progress
-          - done
-          - failed
+            - pending
+            - in_progress
+            - done
+            - failed
           description: pending — queued; in_progress — generating; done — ready to download; failed — generation error
         begin_date:
           type: string
@@ -114,38 +149,3 @@ components:
           format: uri
           description: Download URL (present when status=done)
           nullable: true
-    ReportEntry:
-      type: object
-      description: A generated report file entry
-      properties:
-        id:
-          type: string
-        status:
-          type: string
-          enum:
-          - available
-          - expired
-        date_created:
-          type: string
-          format: date-time
-        date_last_updated:
-          type: string
-          format: date-time
-        begin_date:
-          type: string
-          format: date-time
-        end_date:
-          type: string
-          format: date-time
-        file_name:
-          type: string
-          example: releases_report_2024-01-01_2024-01-31.csv
-    ReportListResult:
-      type: object
-      properties:
-        paging:
-          $ref: common.yaml#/components/schemas/Pagination
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ReportEntry'
