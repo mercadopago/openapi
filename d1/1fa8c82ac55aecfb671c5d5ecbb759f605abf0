@@ -1,0 +1,28 @@
+apps.yaml
+  s_04096a9d2f1f5c::t_da5e6b0cb63251 35-37
+  s_04096a9d2f1f5c::t_4792f4bfb8665d 1,3-27,32,41,47,53,59,66,72,78,84,90
+.github/workflows/pr-commands.yml
+  s_04096a9d2f1f5c::t_f474d25a805dc3 1-144
+scripts/validate-policy.py
+  s_04096a9d2f1f5c::t_be9c6f0ed06e1f 3-10,21-23,25-27,29-33,35-44,46-65,71,76,79,82,86-88,90,92,94-97,100
+.github/workflows/trigger-sdk-generation.yml
+  s_04096a9d2f1f5c::t_28678fde6aa752 1-96
+scripts/push_to_sdk.py
+  s_04096a9d2f1f5c::t_60290f26ff1599 1-311
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.8",
+  "base_commit_sha": "d11fa8c82ac55aecfb671c5d5ecbb759f605abf0",
+  "prompts": {},
+  "sessions": {
+    "s_04096a9d2f1f5c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5a0a7afc-b248-41e9-a6b9-92898eb4c55a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "lpinillacuev <lina.pinillacuevas@mercadolibre.com.co>"
+    }
+  }
+}
