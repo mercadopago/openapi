@@ -41,3 +41,99 @@ jobs:
             exit 1
           fi
           echo "No external \$ref — spec is self-contained ✓"
+
+  diff:
+    name: Post API diff comment
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+
+      - name: Install oasdiff
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/oasdiff/oasdiff/main/install.sh | sh
+          oasdiff --version
+
+      - name: Get base spec3.yaml
+        run: |
+          git fetch origin main --depth=1
+          git show origin/main:spec3.yaml > /tmp/spec3-base.yaml || echo "openapi: 3.1.0" > /tmp/spec3-base.yaml
+
+      - name: Generate diff
+        id: diff
+        run: |
+          # Human-readable changelog
+          oasdiff changelog /tmp/spec3-base.yaml spec3.yaml \
+            --format markdown > /tmp/diff-output.md 2>/dev/null || true
+
+          # Check for breaking changes
+          oasdiff breaking /tmp/spec3-base.yaml spec3.yaml \
+            --format markdown > /tmp/breaking-output.md 2>/dev/null || true
+
+          DIFF_CONTENT=$(cat /tmp/diff-output.md)
+          BREAKING_CONTENT=$(cat /tmp/breaking-output.md)
+
+          if [ -z "$DIFF_CONTENT" ] && [ -z "$BREAKING_CONTENT" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Post diff comment on PR
+        if: steps.diff.outputs.has_changes == 'true'
+        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71
+        with:
+          github-token: ${{ secrets.GH_PAT || github.token }}
+          script: |
+            const fs = require('fs');
+
+            const diffContent    = fs.readFileSync('/tmp/diff-output.md', 'utf8').trim();
+            const breakingContent = fs.readFileSync('/tmp/breaking-output.md', 'utf8').trim();
+
+            let body = '## 📋 Cambios en el spec — revisión para el reviewer\n\n';
+            body += '> Generado automáticamente por oasdiff comparando contra `main`\n\n';
+
+            if (breakingContent) {
+              body += '### ❌ Breaking changes\n\n';
+              body += breakingContent + '\n\n';
+            }
+
+            if (diffContent) {
+              body += '### 📝 Todos los cambios\n\n';
+              body += diffContent + '\n\n';
+            }
+
+            body += '---\n_Para decidir sobre paths nuevos: desmarcá los que querés rechazar en la descripción del PR y hacé **Review changes → Approve**._';
+
+            // Find and update existing diff comment, or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c =>
+              c.body.includes('Cambios en el spec — revisión para el reviewer')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
