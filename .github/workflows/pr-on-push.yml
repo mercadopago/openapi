@@ -27,7 +27,7 @@ jobs:
           github-token: ${{ secrets.GH_PAT || github.token }}
           script: |
             const branch = context.ref.replace('refs/heads/', '');
-            const baseBranch = 'feature/add-fury-spec';
+            const baseBranch = 'main';
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
