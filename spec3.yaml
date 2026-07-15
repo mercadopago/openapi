@@ -5694,6 +5694,600 @@ components:
             error: too_many_requests
             message: Rate limit exceeded. Retry after the indicated number of seconds.
   schemas:
+    BankAccount:
+      type: object
+      required:
+      - account_number
+      - routing_number
+      properties:
+        account_number:
+          type: string
+          description: Bank account number
+        routing_number:
+          type: string
+          description: Bank routing number
+        account_type:
+          type: string
+          enum:
+          - checking
+          - savings
+          description: Type of bank account
+
+    CardDetails:
+      type: object
+      required:
+      - number
+      - expiry_month
+      - expiry_year
+      - cvv
+      properties:
+        number:
+          type: string
+          pattern: ^[0-9]{13,19}$
+          description: Card number
+          examples:
+          - '4111111111111111'
+        expiry_month:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: Card expiry month
+          examples:
+          - 12
+        expiry_year:
+          type: integer
+          minimum: 2024
+          description: Card expiry year
+          examples:
+          - 2026
+        cvv:
+          type: string
+          pattern: ^[0-9]{3,4}$
+          description: Card verification value
+          examples:
+          - '123'
+        cardholder_name:
+          type: string
+          maxLength: 100
+          description: Name on the card
+          examples:
+          - John Doe
+
+    CustomerCreateRequest:
+      type: object
+      required:
+      - first_name
+      - last_name
+      - email
+      properties:
+        first_name:
+          description: Customer first name
+          type: string
+          maxLength: 50
+          examples:
+          - John
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          pattern: ^\+?[1-9]\d{1,14}$
+          description: Customer phone number in E.164 format
+          type: string
+          examples:
+          - +1-555-987-6543
+        last_name:
+          description: Customer last name
+          type: string
+          maxLength: 50
+          examples:
+          - Doe
+        email:
+          format: email
+          description: Customer email address
+          type: string
+          examples:
+          - john.doe@example.com
+
+    CustomerResponse:
+      type: object
+      required:
+      - customer_id
+      - first_name
+      - last_name
+      - email
+      - status
+      - created_at
+      properties:
+        first_name:
+          type: string
+          description: Customer first name
+          examples:
+          - John
+        address:
+          $ref: '#/components/schemas/Address'
+        updated_at:
+          format: date-time
+          description: Last update timestamp
+          type: string
+          examples:
+          - '2024-01-15T08:30:15Z'
+        phone:
+          type: string
+          description: Customer phone number
+          examples:
+          - +1-555-987-6543
+        created_at:
+          format: date-time
+          description: Customer creation timestamp
+          type: string
+          examples:
+          - '2024-01-15T08:30:00Z'
+        customer_id:
+          format: uuid
+          description: Unique customer identifier
+          type: string
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+        last_name:
+          type: string
+          description: Customer last name
+          examples:
+          - Doe
+        email:
+          format: email
+          description: Customer email address
+          type: string
+          examples:
+          - john.doe@example.com
+        status:
+          description: Current customer status
+          type: string
+          enum:
+          - active
+          - inactive
+          - suspended
+          examples:
+          - active
+
+    DigitalWallet:
+      type: object
+      required:
+      - provider
+      - wallet_id
+      properties:
+        provider:
+          type: string
+          enum:
+          - paypal
+          - apple_pay
+          - google_pay
+          - venmo
+          description: Digital wallet provider
+        wallet_id:
+          type: string
+          description: Wallet identifier or token
+
+    MerchantAnalyticsResponse:
+      type: object
+      required:
+      - merchant_id
+      - total_transactions
+      - total_volume
+      - total_fees_collected
+      - period
+      properties:
+        period:
+          type: object
+          required:
+          - start_date
+          - end_date
+          properties:
+            end_date:
+              format: date
+              description: End date of the analytics period
+              type: string
+              examples:
+              - '2024-01-31'
+            start_date:
+              format: date
+              description: Start date of the analytics period
+              type: string
+              examples:
+              - '2024-01-01'
+        total_fees_collected:
+          format: decimal
+          description: Total fees collected from this merchant
+          type: number
+          examples:
+          - 1247.83
+        top_customers:
+          type: array
+          description: Top customers by transaction volume
+          items:
+            type: object
+            properties:
+              transaction_count:
+                type: integer
+                description: Number of transactions
+                examples:
+                - 15
+              customer_id:
+                format: uuid
+                description: Customer identifier
+                type: string
+                examples:
+                - 123e4567-e89b-12d3-a456-426614174000
+              total_volume:
+                format: decimal
+                description: Total volume from this customer
+                type: number
+                examples:
+                - 2456.78
+        total_volume:
+          format: decimal
+          description: Total payment volume for this merchant
+          type: number
+          examples:
+          - 87459.32
+        total_transactions:
+          type: integer
+          description: Total number of transactions for this merchant
+          examples:
+          - 456
+        merchant_id:
+          format: uuid
+          description: Merchant identifier
+          type: string
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+
+    MerchantCreateRequest:
+      type: object
+      required:
+      - business_name
+      - email
+      - phone
+      - address
+      properties:
+        business_name:
+          description: Name of the business
+          type: string
+          maxLength: 100
+          examples:
+          - Acme Corporation
+        phone:
+          pattern: ^\+?[1-9]\d{1,14}$
+          description: Business phone number in E.164 format
+          type: string
+          examples:
+          - +1-555-123-4567
+        website:
+          format: uri
+          description: Business website URL
+          type: string
+          examples:
+          - https://www.acme.com
+        address:
+          $ref: '#/components/schemas/Address'
+        email:
+          format: email
+          description: Business email address
+          type: string
+          examples:
+          - contact@acme.com
+
+    MerchantListResponse:
+      type: object
+      required:
+      - data
+      - pagination
+      properties:
+        data:
+          type: array
+          description: List of merchants
+          items:
+            $ref: '#/components/schemas/MerchantResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    MerchantResponse:
+      type: object
+      required:
+      - merchant_id
+      - business_name
+      - email
+      - phone
+      - status
+      - created_at
+      properties:
+        business_name:
+          type: string
+          description: Business name
+          examples:
+          - Acme Corporation
+        phone:
+          type: string
+          description: Business phone number
+          examples:
+          - +1-555-123-4567
+        website:
+          format: uri
+          description: Business website URL
+          type: string
+          examples:
+          - https://www.acme.com
+        updated_at:
+          format: date-time
+          description: Last update timestamp
+          type: string
+          examples:
+          - '2024-01-15T09:30:15Z'
+        address:
+          $ref: '#/components/schemas/Address'
+        email:
+          format: email
+          description: Business email address
+          type: string
+          examples:
+          - contact@acme.com
+        merchant_id:
+          format: uuid
+          description: Unique merchant identifier
+          type: string
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        created_at:
+          format: date-time
+          description: Merchant creation timestamp
+          type: string
+          examples:
+          - '2024-01-15T09:30:00Z'
+        status:
+          description: Current merchant status
+          type: string
+          enum:
+          - pending
+          - active
+          - suspended
+          - inactive
+          examples:
+          - active
+
+    MerchantUpdateRequest:
+      type: object
+      properties:
+        business_name:
+          description: Name of the business
+          type: string
+          maxLength: 100
+          examples:
+          - Acme Corporation Ltd
+        website:
+          format: uri
+          description: Business website URL
+          type: string
+          examples:
+          - https://www.acme.com
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          pattern: ^\+?[1-9]\d{1,14}$
+          description: Business phone number in E.164 format
+          type: string
+          examples:
+          - +1-555-123-4567
+        email:
+          format: email
+          description: Business email address
+          type: string
+          examples:
+          - contact@acme.com
+
+    PaymentAnalyticsResponse:
+      type: object
+      required:
+      - total_transactions
+      - total_volume
+      - success_rate
+      - period
+      properties:
+        average_transaction_amount:
+          format: decimal
+          description: Average transaction amount in the period
+          type: number
+          examples:
+          - 127.45
+        total_volume:
+          format: decimal
+          description: Total payment volume in the specified currency
+          type: number
+          examples:
+          - 125847.32
+        failed_transactions:
+          type: integer
+          description: Number of failed transactions
+          examples:
+          - 23
+        currency:
+          type: string
+          description: Currency for monetary values
+          examples:
+          - USD
+        total_transactions:
+          type: integer
+          description: Total number of transactions in the period
+          examples:
+          - 1250
+        period:
+          type: object
+          required:
+          - start_date
+          - end_date
+          properties:
+            start_date:
+              format: date
+              description: Start date of the analytics period
+              type: string
+              examples:
+              - '2024-01-01'
+            end_date:
+              format: date
+              description: End date of the analytics period
+              type: string
+              examples:
+              - '2024-01-31'
+        success_rate:
+          format: percentage
+          description: Payment success rate as a percentage
+          type: number
+          minimum: 0
+          maximum: 100
+          examples:
+          - 98.16
+        successful_transactions:
+          type: integer
+          description: Number of successful transactions
+          examples:
+          - 1227
+
+    PaymentFees:
+      type: object
+      properties:
+        processing_fee:
+          type: number
+          format: decimal
+          description: Processing fee charged
+          examples:
+          - 0.89
+        platform_fee:
+          type: number
+          format: decimal
+          description: Platform fee charged
+          examples:
+          - 1.5
+        total_fees:
+          type: number
+          format: decimal
+          description: Total fees charged
+          examples:
+          - 2.39
+
+    PaymentListResponse:
+      type: object
+      required:
+      - data
+      - pagination
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          type: array
+          description: List of payments
+          items:
+            $ref: '#/components/schemas/PaymentResponse'
+
+    PaymentMethod:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - credit_card
+          - debit_card
+          - bank_transfer
+          - digital_wallet
+          - cryptocurrency
+          description: Type of payment method
+        card:
+          $ref: '#/components/schemas/CardDetails'
+        bank_account:
+          $ref: '#/components/schemas/BankAccount'
+        digital_wallet:
+          $ref: '#/components/schemas/DigitalWallet'
+
+    PaymentMethodListResponse:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          description: List of stored payment methods
+          items:
+            $ref: '#/components/schemas/StoredPaymentMethodResponse'
+
+    PaymentMethodStoreRequest:
+      type: object
+      required:
+      - payment_method
+      - is_default
+      properties:
+        is_default:
+          description: Set as the default payment method for this customer
+          type: boolean
+          examples:
+          - true
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethod'
+
+    PaymentResponse:
+      type: object
+      required:
+      - payment_id
+      - status
+      - amount
+      - currency
+      - created_at
+      properties:
+        payment_id:
+          type: string
+          format: uuid
+          description: Unique payment identifier
+          examples:
+          - 987fcdeb-51a2-43d1-9c15-246531579012
+        status:
+          type: string
+          enum:
+          - pending
+          - processing
+          - completed
+          - failed
+          - cancelled
+          description: Current payment status
+          examples:
+          - completed
+        amount:
+          type: number
+          format: decimal
+          description: Payment amount
+          examples:
+          - 29.99
+        currency:
+          type: string
+          description: Payment currency
+          examples:
+          - USD
+        transaction_id:
+          type: string
+          description: External transaction identifier from payment processor
+          examples:
+          - txn_1234567890
+        created_at:
+          type: string
+          format: date-time
+          description: Payment creation timestamp
+          examples:
+          - '2024-01-15T10:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          examples:
+          - '2024-01-15T10:30:15Z'
+        fees:
+          $ref: '#/components/schemas/PaymentFees'
+
     PreferenceRequest:
       type: object
       required:
@@ -6089,6 +6683,70 @@ components:
           format: float
         reason:
           type: string
+    RefundListResponse:
+      type: object
+      required:
+      - data
+      - pagination
+      properties:
+        data:
+          type: array
+          description: List of refunds for the payment
+          items:
+            $ref: '#/components/schemas/RefundResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    RefundResponse:
+      type: object
+      required:
+      - refund_id
+      - payment_id
+      - amount
+      - status
+      - created_at
+      properties:
+        refund_id:
+          format: uuid
+          description: Unique refund identifier
+          type: string
+          examples:
+          - ref_123e4567-e89b-12d3-a456-426614174000
+        updated_at:
+          format: date-time
+          description: Last update timestamp
+          type: string
+          examples:
+          - '2024-01-15T11:30:15Z'
+        payment_id:
+          format: uuid
+          description: Original payment identifier
+          type: string
+          examples:
+          - 987fcdeb-51a2-43d1-9c15-246531579012
+        created_at:
+          format: date-time
+          description: Refund creation timestamp
+          type: string
+          examples:
+          - '2024-01-15T11:30:00Z'
+        amount:
+          format: decimal
+          description: Refunded amount
+          type: number
+          examples:
+          - 15.99
+        status:
+          description: Current refund status
+          type: string
+          enum:
+          - pending
+          - processing
+          - completed
+          - failed
+          examples:
+          - completed
+
     SendMessageRequest:
       type: object
       required:
@@ -7138,6 +7796,119 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ReportEntry'
+    StoredPaymentMethodResponse:
+      type: object
+      required:
+      - payment_method_id
+      - customer_id
+      - type
+      - is_default
+      - created_at
+      properties:
+        is_default:
+          description: Whether this is the default payment method
+          type: boolean
+          examples:
+          - true
+        updated_at:
+          format: date-time
+          description: Last update timestamp
+          type: string
+          examples:
+          - '2024-01-15T07:30:15Z'
+        payment_method_id:
+          format: uuid
+          description: Unique payment method identifier
+          type: string
+          examples:
+          - pm_456e7890-a12b-34c5-d678-901234567890
+        created_at:
+          format: date-time
+          description: Payment method creation timestamp
+          type: string
+          examples:
+          - '2024-01-15T07:30:00Z'
+        customer_id:
+          format: uuid
+          description: Customer identifier
+          type: string
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+        last_four:
+          type: string
+          description: Last four digits of card (for card payments only)
+          examples:
+          - '1111'
+        type:
+          description: Type of payment method
+          type: string
+          enum:
+          - credit_card
+          - debit_card
+          - bank_transfer
+          - digital_wallet
+          - cryptocurrency
+          examples:
+          - credit_card
+
+    SubscriptionCreateRequest:
+      type: object
+      required:
+      - customer_id
+      - merchant_id
+      - amount
+      - currency
+      - frequency
+      - payment_method_id
+      properties:
+        merchant_id:
+          format: uuid
+          description: Merchant identifier
+          type: string
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        payment_method_id:
+          format: uuid
+          description: Payment method to use for recurring payments
+          type: string
+          examples:
+          - pm_456e7890-a12b-34c5-d678-901234567890
+        amount:
+          format: decimal
+          description: Recurring payment amount
+          type: number
+          minimum: 0.01
+          examples:
+          - 29.99
+        currency:
+          pattern: ^[A-Z]{3}$
+          description: ISO 4217 currency code
+          type: string
+          examples:
+          - USD
+        frequency:
+          description: Payment frequency
+          type: string
+          enum:
+          - weekly
+          - monthly
+          - quarterly
+          - yearly
+          examples:
+          - monthly
+        start_date:
+          format: date
+          description: Date to start the recurring payments
+          type: string
+          examples:
+          - '2024-01-15'
+        customer_id:
+          format: uuid
+          description: Customer identifier
+          type: string
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+
     SubscriptionPlanRequest:
       type: object
       required:
@@ -7379,6 +8150,94 @@ components:
               type: string
             status_detail:
               type: string
+    SubscriptionResponse:
+      type: object
+      required:
+      - subscription_id
+      - customer_id
+      - merchant_id
+      - amount
+      - currency
+      - frequency
+      - status
+      - next_payment_date
+      - created_at
+      properties:
+        merchant_id:
+          format: uuid
+          description: Merchant identifier
+          type: string
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        payment_method_id:
+          format: uuid
+          description: Payment method to use for recurring payments
+          type: string
+          examples:
+          - pm_456e7890-a12b-34c5-d678-901234567890
+        amount:
+          format: decimal
+          description: Recurring payment amount
+          type: number
+          examples:
+          - 29.99
+        updated_at:
+          format: date-time
+          description: Last update timestamp
+          type: string
+          examples:
+          - '2024-01-15T06:30:15Z'
+        currency:
+          pattern: ^[A-Z]{3}$
+          description: ISO 4217 currency code
+          type: string
+          examples:
+          - USD
+        frequency:
+          description: Payment frequency
+          type: string
+          enum:
+          - weekly
+          - monthly
+          - quarterly
+          - yearly
+          examples:
+          - monthly
+        created_at:
+          format: date-time
+          description: Subscription creation timestamp
+          type: string
+          examples:
+          - '2024-01-15T06:30:00Z'
+        next_payment_date:
+          format: date
+          description: Next scheduled payment date
+          type: string
+          examples:
+          - '2024-02-15'
+        customer_id:
+          format: uuid
+          description: Customer identifier
+          type: string
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+        subscription_id:
+          format: uuid
+          description: Unique subscription identifier
+          type: string
+          examples:
+          - sub_789fcdeb-51a2-43d1-9c15-246531579012
+        status:
+          description: Current subscription status
+          type: string
+          enum:
+          - active
+          - paused
+          - cancelled
+          - expired
+          examples:
+          - active
+
     SubscriptionSearchResult:
       type: object
       properties:
@@ -7388,6 +8247,97 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Subscription'
+    ValidationResponse:
+      type: object
+      required:
+      - is_valid
+      properties:
+        is_valid:
+          type: boolean
+          description: Whether the payment method is valid
+          examples:
+          - true
+        suggestions:
+          type: array
+          description: Suggestions for fixing validation issues
+          items:
+            type: string
+            examples:
+            - Please check the expiry date
+        errors:
+          type: array
+          description: List of validation errors
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Validation error message
+                examples:
+                - Card has expired
+              field:
+                type: string
+                description: Field that failed validation
+                examples:
+                - expiry_month
+
+    WebhookEvent:
+      type: object
+      required:
+      - event_id
+      - event_type
+      - resource_id
+      - created_at
+      - data
+      properties:
+        event_id:
+          format: uuid
+          description: Unique event identifier
+          type: string
+          examples:
+          - evt_987fcdeb-51a2-43d1-9c15-246531579012
+        event_type:
+          description: Type of webhook event
+          type: string
+          enum:
+          - payment.completed
+          - payment.failed
+          - refund.processed
+          - subscription.created
+          - subscription.cancelled
+          examples:
+          - payment.completed
+        resource_id:
+          format: uuid
+          description: ID of the resource that triggered the event
+          type: string
+          examples:
+          - 987fcdeb-51a2-43d1-9c15-246531579012
+        created_at:
+          format: date-time
+          description: Event creation timestamp
+          type: string
+          examples:
+          - '2024-01-15T05:30:00Z'
+        data:
+          type: object
+          description: Event payload data
+          additionalProperties: true
+
+    WebhookEventListResponse:
+      type: object
+      required:
+      - data
+      - pagination
+      properties:
+        data:
+          type: array
+          description: List of webhook events
+          items:
+            $ref: '#/components/schemas/WebhookEvent'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
     WebhookNotification:
       type: object
       description: Webhook notification payload sent to your notification URL when a resource changes. Validate the x-signature
