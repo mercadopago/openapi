@@ -134,6 +134,61 @@ tags:
   - MLM
   - MLC
 paths:
+  /v1/orders/{order_id}/confirm:
+    post:
+      tags:
+      - Public Order
+      summary: Confirm transactions in order
+      description: |
+        Confirms transaction amounts in an order. **This endpoint is only supported for instore QR payment type**.
+
+        This operation allows confirming the final amounts for transactions that were previously created in the order.
+      parameters:
+      - $ref: '#/components/parameters/OrderID'
+      - $ref: '#/components/parameters/XIdempotencyKey'
+      - $ref: '#/components/parameters/XProductID'
+      requestBody:
+        $ref: '#/components/requestBodies/ConfirmOrder'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConfirmOrder'
+        '400':
+          $ref: '#/components/responses/ConfirmOrderBadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/ConfirmOrderNotFound'
+        '409':
+          $ref: '#/components/responses/ConfirmOrderConflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /v1/orders/{order_id}/events:
+    post:
+      tags:
+      - Public Order
+      summary: Simulate order events
+      description: >-
+        This resource allows you to simulate events on an order, and change its status. This resource is only enabled for
+        inStore point orders, at the moment.
+      parameters:
+      - $ref: '#/components/parameters/OrderID'
+      requestBody:
+        $ref: '#/components/requestBodies/SimulateOrderEvent'
+      responses:
+        '400':
+          $ref: '#/components/responses/SimulateOrderBadRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/SimulateOrderEventNotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /v1/payments:
     post:
       operationId: createPayment
@@ -1017,6 +1072,27 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           description: Conflict — order cannot be refunded in its current status
+    get:
+      tags:
+      - Public Order
+      summary: Get refunds of order
+      parameters:
+      - $ref: '#/components/parameters/OrderID'
+      - $ref: '#/components/parameters/XIdempotencyKey'
+      - $ref: '#/components/parameters/XProductID'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetOrderRefunds'
+        '400':
+          description: Invalid order
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Order not found
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
   /checkout/preferences:
     post:
       operationId: createPreference
@@ -5693,6 +5769,454 @@ components:
             status: 429
             error: too_many_requests
             message: Rate limit exceeded. Retry after the indicated number of seconds.
+    ConfirmOrder:
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrderOPResponse'
+          examples:
+            ConfirmSingleTransactionResponse:
+              $ref: '#/components/examples/ConfirmSingleTransactionResponse'
+
+    ConfirmOrderBadRequest:
+      description: Bad request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            RequireIdempotencyHeader:
+              $ref: '#/components/examples/RequireIdempotencyHeader'
+            InvalidSizeIdempotencyKey:
+              $ref: '#/components/examples/InvalidSizeIdempotencyHeader'
+            PathParamOrderID:
+              $ref: '#/components/examples/PathParamOrderID'
+
+    ConfirmOrderNotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            OrderNotFound:
+              $ref: '#/components/examples/OrderNotFound'
+            TransactionNotFound:
+              $ref: '#/components/examples/TransactionNotFound'
+
+    ConfirmOrderConflict:
+      description: Conflict - The order type does not support the confirm operation (e.g., non-QR orders).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            InvalidOrderTypeError:
+              $ref: '#/components/examples/InvalidOrderTypeError'
+
+    GetOrderRefunds:
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RefundsResponse'
+          examples:
+            GetOrderRefunds:
+              $ref: '#/components/examples/GetOrderRefunds'
+
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            InternalServerError:
+              $ref: '#/components/examples/InternalServerError'
+            IdempotencyValidationFailedError:
+              $ref: '#/components/examples/IdempotencyValidationFailedError'
+
+    SimulateOrderBadRequest:
+      description: Bad request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            InvalidStatusTransition:
+              $ref: '#/components/examples/InvalidStatusTransition'
+            InvalidPathParam:
+              $ref: '#/components/examples/PathParamOrderID'
+            RequiredPropertiesError:
+              $ref: '#/components/examples/RequiredPropertiesError'
+            UnsupportedPropertiesError:
+              $ref: '#/components/examples/UnsupportedPropertiesError'
+            MinimumPropertiesError:
+              $ref: '#/components/examples/MinimumPropertiesError'
+            PropertyTypeError:
+              $ref: '#/components/examples/PropertyTypeError'
+            PropertyValueError:
+              $ref: '#/components/examples/PropertyValueError'
+            MaximumItemsError:
+              $ref: '#/components/examples/MaximumItemsError'
+            MinimumItemsError:
+              $ref: '#/components/examples/MinimumItemsError'
+            InvalidPropertiesError:
+              $ref: '#/components/examples/InvalidPropertiesError'
+
+    ForbiddenError:
+      description: >-
+        Forbidden. Returned either when the caller lacks permission to access the resource, or when the caller's account is
+        blocked and its API keys have been revoked.
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/Error'
+              - $ref: '#/components/schemas/PolicyAgentBlockedError'
+          examples:
+            InvalidUserPermission:
+              $ref: '#/components/examples/PermissionDeniedAccessResource'
+            AccountBlockedByPolicyAgent:
+              $ref: '#/components/examples/AccountBlockedByPolicyAgent'
+
+    SimulateOrderEventNotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            OrderNotFound:
+              $ref: '#/components/examples/OrderNotFound'
+
+  parameters:
+    OrderID:
+      name: order_id
+      in: path
+      description: Order id
+      required: true
+      schema:
+        type: string
+    XIdempotencyKey:
+      name: X-Idempotency-Key
+      in: header
+      schema:
+        type: string
+      required: true
+      description: Idempotency key for the request
+
+    XProductID:
+      name: X-Product-Id
+      in: header
+      schema:
+        type: string
+      required: true
+      description: Product ID for the request
+      x-visibility: partner
+
+  requestBodies:
+    ConfirmOrder:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmOrderRequest'
+          examples:
+            ConfirmSingleTransactionRequest:
+              $ref: '#/components/examples/ConfirmSingleTransactionRequest'
+    SimulateOrderEvent:
+      required: true
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/SimulateOrderEventRequest'
+          examples:
+            SimulateOrderEventRequest:
+              $ref: '#/components/examples/SimulateOrderEventRequest'
+
+  examples:
+    CreateOnlineWalletConnectOrderUnauthorized:
+      summary: Online - Wallet Connect - Unauthorized
+      value:
+        errors:
+          - code: unauthorized_payer_token
+            message: Payer token unauthorized
+    ConfirmSingleTransactionRequest:
+      summary: Confirm single transaction amount
+      description: |
+        Confirm the final amount for a single transaction in an instore QR order.
+
+        * Order has a **single transaction**.
+        * Transaction amount is **confirmed**.
+      value:
+        transactions:
+          - id: PAY01J3GW5GCVQQB7MEN5FMA6ZJF8
+            confirmed_amount: '113.34'
+
+    ConfirmSingleTransactionResponse:
+      summary: Confirm single transaction amount
+      description: |
+        Order response after confirming a single transaction.
+
+        * Order status is updated after confirmation.
+        * Transaction reflects the confirmed amount.
+      value:
+        id: ORD01J3GW5GCVQQB7MEN5FMA6ZJF8
+        type: qr
+        external_reference: ext_ref_1234
+        status: processed
+        status_detail: accredited
+        transactions:
+          payments:
+            - id: PAY01J3GW5GCVQQB7MEN5FMA6ZJF8
+              amount: '113.34'
+              status: approved
+              payment_method:
+                id: visa
+                type: credit_card
+
+    GetOrderRefunds:
+      summary: Get Order Refunds
+      value:
+        refunds:
+          - id: REF01HRYNEJEKVAP86DZ0K46P6QN4
+            transaction_id: PAY01HRYND03RAA77KXC3YBA7Y7FF
+            amount: '50.00'
+            status: processed
+          - id: REF01HRYNERTF3A45KB0KFFPNN2WK
+            transaction_id: PAY01HRYNDF1DTCFXQFKG71JXBTZM
+            amount: '100.00'
+            status: processed
+
+    SimulateOrderEventRequest:
+      summary: Simulate order event
+      value:
+        status: processed
+        payment_method_type: credit_card
+        installments: 10
+
+    RequireAuthHeaders:
+      summary: Require Auth Headers
+      value:
+        errors:
+          - code: empty_required_header
+            message: 'Missing HTTP headers: X-Caller-Id, X-Client-Id'
+
+    RequireIdempotencyHeader:
+      summary: Require Idempotency Headers
+      value:
+        errors:
+          - code: empty_required_header
+            message: 'Missing HTTP header: X-Idempotency-Key.'
+            pre: >-
+              https://furydocs.io/mp-order-api/latest/guide/#/architecture/idempotency?id=x-idempotency-key-not-sent-or-empty
+
+    InvalidSizeIdempotencyHeader:
+      summary: Invalid Size Idempotency Headers
+      value:
+        errors:
+          - code: invalid_idempotency_key_length
+            message: X-Idempotency-Key length exceeds 128 characters.
+            doc_url: https://furydocs.io/mp-order-api/latest/guide/#/architecture/idempotency?id=x-invalid_idempotency_key_length
+
+    PathParamOrderID:
+      summary: Invalid Order ID
+      value:
+        errors:
+          - code: invalid_path_param
+            message: Path param Order id is invalid
+
+    OrderNotFound:
+      summary: Order Not Found
+      description: Returned when **order does not exist** for the **combination** of **order id** and **access token**.
+      value:
+        errors:
+          - code: order_not_found
+            message: Order not found.
+
+    TransactionNotFound:
+      summary: Transaction not found
+      description: Returned when **transaction** is not found in Order.
+      value:
+        errors:
+          - code: transaction_not_found
+            message: Transaction not found.
+
+    InternalServerError:
+      summary: Internal Server Error
+      value:
+        errors:
+          - code: internal_server_error
+            message: Some error occurred on our side while attempting to process the request.
+
+    InvalidStatusTransition:
+      summary: Invalid status transition
+      description: Returned when the change of status is not valid with order state machine
+      value:
+        errors:
+          - code: bad_request
+            message: Invalid order status transition.
+
+    PermissionDeniedAccessResource:
+      summary: Permission access resource
+      description: Returned when the user does not have permission to access the resource
+      value:
+        errors:
+          - code: forbidden
+            message: No permission to access the resource.
+
+    AccountBlockedByPolicyAgent:
+      summary: Account blocked
+      description: >-
+        Returned when the caller's account is blocked and its API keys have been revoked. At least one policy evaluated by
+        the Policy Agent returned an UNAUTHORIZED result.
+      value:
+        blocked_by: PolicyAgent
+        message: At least one policy returned UNAUTHORIZED.
+        code: PA_UNAUTHORIZED_RESULT_FROM_POLICIES
+        status: 403
+
+    TestCredentialsNotSupported:
+      summary: Test Credentials Not Supported
+      description: >-
+        Returned when **TEST credentials** are used in the authorization header. Test tokens (beginning with "TEST-") are
+        not supported and should be replaced with production credentials of test users. The doc_url field contains a
+        **country-specific link** to the test user creation documentation.
+      value:
+        code: 401
+        errors:
+          - code: invalid_credentials
+            message: >-
+              Test credentials are not supported, use test users with production credentials to sandbox environment and your
+              production credentials to production environment.
+            doc_url: https://www.mercadopago.com.br/developers/en/reference/test_user/_users_test/post
+
+    RequiredPropertiesError:
+      summary: Required properties missing
+      description: >-
+        There are some required properties missing. Check the message returned in the error details to find out what the
+        problem was and try again.
+      value:
+        errors:
+          - code: required_properties
+            message: >-
+              There are some required properties missing. Check the message returned in the error details to find out what
+              the problem was and try again.
+            details:
+              - $.payer - required property 'email' is missing
+
+    UnsupportedPropertiesError:
+      summary: Unsupported property sent
+      description: >-
+        An unsupported property was sent. Check the message returned in the error details to find out what the problem was
+        and try again.
+      value:
+        errors:
+          - code: unsupported_properties
+            message: >-
+              An unsupported property was sent. Check the message returned in the error details to find out what the problem
+              was and try again.
+            details:
+              - $.unsupported_field - unsupported property
+
+    MinimumPropertiesError:
+      summary: Minimum properties not met
+      description: >-
+        The minimum number of properties required to execute the request was not sent. Check the message returned in the
+        error details to find out what the problem was and try again.
+      value:
+        errors:
+          - code: minimum_properties
+            message: >-
+              The minimum number of properties required to execute the request was not sent. Check the message returned in
+              the error details to find out what the problem was and try again.
+            details:
+              - $.payer - minimum 1 properties required, but found 0 properties
+
+    PropertyTypeError:
+      summary: Incorrect property type
+      description: >-
+        The wrong property type was submitted. For example, an 'integer' value for a 'string' property. Check the message
+        returned in the error details to find out what the problem was and try again.
+      value:
+        errors:
+          - code: property_type
+            message: Incorrect type for property
+            details:
+              - $.total_amount - expected string, but got number
+
+    PropertyValueError:
+      summary: Incorrect property value
+      description: >-
+        An incorrect value for some property was sent. Check the message returned in the error details to find out what the
+        problem was and try again.
+      value:
+        errors:
+          - code: property_value
+            message: >-
+              An incorrect value for some property was sent. Check the message returned in the error details to find out
+              what the problem was and try again.
+            details:
+              - '$.type - invalid value ''invalid_type'', expected one of: online, point, qr'
+
+    MaximumItemsError:
+      summary: Maximum items exceeded
+      description: >-
+        A greater number of items were sent than allowed for some property. Check the message returned in the error details
+        to find out what the problem was and try again.
+      value:
+        errors:
+          - code: maximum_items
+            message: Maximum items
+            details:
+              - $.transactions.payments - maximum 1 items required, but found 2 items
+
+    MinimumItemsError:
+      summary: Minimum items not met
+      description: >-
+        The minimum number of items for some property was not sent. Check the message returned in the error details to find
+        out what the problem was and try again.
+      value:
+        errors:
+          - code: minimum_items
+            message: >-
+              The minimum number of items for some property was not sent. Check the message returned in the error details to
+              find out what the problem was and try again.
+            details:
+              - $.items - minimum 1 items required, but found 0 items
+
+    InvalidPropertiesError:
+      summary: Invalid properties
+      description: >-
+        Incorrect information was sent. Check the message returned in the error details to find out what the problem was and
+        try again.
+      value:
+        errors:
+          - code: invalid_properties
+            message: >-
+              Incorrect information was sent. Check the message returned in the error details to find out what the problem
+              was and try again.
+            details:
+              - $.payer.email - invalid email format
+
+    InvalidOrderTypeError:
+      summary: Invalid order type
+      description: The order type provided is invalid or not supported.
+      value:
+        errors:
+          - code: invalid_order_type
+            message: 'Invalid order type. Expected one of: online, point, qr.'
+
+    IdempotencyValidationFailedError:
+      summary: Idempotency validation failed
+      description: Validation fail. Please try submitting the request again.
+      value:
+        errors:
+          - code: idempotency_validation_failed
+            message: Validation fail. Please try submitting the request again.
+
   schemas:
     PreferenceRequest:
       type: object
@@ -8136,3 +8660,1529 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuthorizedPayment'
+
+    OrderOPPaymentRequest:
+      type: array
+      minItems: 1
+      maxItems: 1
+      items:
+        type: object
+        minProperties: 1
+        required:
+        - amount
+        - payment_method
+        properties:
+          amount:
+            type: string
+            minLength: 1
+            maxLength: 18
+            pattern: ^\d+(\.\d{1,2})?$
+            examples:
+            - '123.45'
+          expiration_time:
+            type: string
+            format: duration
+            pattern: ^P(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$
+            description: Duration in ISO 8601 format (e.g. 'P1D' for 1 day, 'PT1H' for 1 hour).
+            examples:
+            - P1D
+          date_of_expiration:
+            type: string
+            format: date-time
+            description: Expiration date and time for the payment transaction (ISO 8601 format).
+            examples:
+            - '2024-12-31T23:59:59.000Z'
+          payment_method:
+            oneOf:
+            - $ref: '#/components/schemas/OrderOPPaymentMethodBankTransferRequest'
+            - $ref: '#/components/schemas/OrderOPPaymentMethodCreditCardRequest'
+            - $ref: '#/components/schemas/OrderOPPaymentMethodDebitCardRequest'
+            - $ref: '#/components/schemas/OrderOPPaymentMethodTicketRequest'
+
+    OrderOPPaymentAutomaticPaymentsRequest:
+      x-visibility: internal
+      description: |
+        Payment item for orders that integrate with Automatic Payments.
+        Currently only **card** payment methods (credit / debit) are accepted.
+
+        Two flows are supported:
+        - **Profile reuse**: include `automatic_payments.payment_profile_id` to
+          charge against an existing Profile. `processing_mode` may be
+          `automatic` or `automatic_async`.
+        - **Profile creation on first request**: omit the `automatic_payments`
+          node entirely and set `stored_credential.first_payment: true` and
+          `stored_credential.store_payment_method: true`. The Profile is
+          created during the first successful transaction. In this flow the
+          order's `processing_mode` **must be `automatic`** —
+          `automatic_async` is not supported.
+      type: array
+      minItems: 1
+      maxItems: 2
+      items:
+        type: object
+        minProperties: 1
+        required:
+        - amount
+        properties:
+          amount:
+            type: string
+            minLength: 1
+            maxLength: 18
+            pattern: ^\d+(\.\d{1,2})?$
+            examples:
+            - '123.45'
+          payment_method:
+            oneOf:
+            - $ref: '#/components/schemas/OrderOPPaymentMethodCreditCardRequest'
+            - $ref: '#/components/schemas/OrderOPPaymentMethodDebitCardRequest'
+          automatic_payments:
+            type: object
+            properties:
+              payment_profile_id:
+                type: string
+                pattern: ^[a-z0-9]{32}$
+              retries:
+                type: integer
+                minimum: 1
+                maximum: 5
+              schedule_date:
+                type: string
+                format: date-time
+              due_date:
+                type: string
+                format: date-time
+              subscription:
+                type: object
+                required:
+                - id
+                - sequence
+                - invoice
+                properties:
+                  id:
+                    type: string
+                  sequence:
+                    type: object
+                    required:
+                    - number
+                    - total
+                    properties:
+                      number:
+                        type: integer
+                        minimum: 1
+                      total:
+                        type: integer
+                        minimum: 1
+                  invoice:
+                    type: object
+                    required:
+                    - id
+                    - billing_date
+                    - period
+                    properties:
+                      id:
+                        type: string
+                      billing_date:
+                        type: string
+                        format: date
+                      period:
+                        type: object
+                        required:
+                        - interval
+                        - type
+                        properties:
+                          interval:
+                            type: integer
+                            minimum: 1
+                          type:
+                            type: string
+                            enum:
+                            - daily
+                            - weekly
+                            - monthly
+          stored_credential:
+            x-visibility: internal
+            type: object
+            required:
+            - payment_initiator
+            properties:
+              payment_initiator:
+                type: string
+                enum:
+                - customer
+                - merchant
+              reason:
+                type: string
+                enum:
+                - card_on_file
+                - recurring
+              previous_transaction_reference:
+                type: string
+                description: Reference to a previous transaction for stored credential usage
+              store_payment_method:
+                type: boolean
+              first_payment:
+                type: boolean
+
+    OrderOPPayerRequest:
+      type: object
+      minProperties: 1
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          minLength: 1
+          maxLength: 30
+          format: email
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        entity_type:
+          type: string
+          description: Payer entity type. Required for PSE bank_transfer payments in MCO.
+          enum:
+          - individual
+          - association
+        identification:
+          type: object
+          minProperties: 1
+          required:
+          - type
+          - number
+          properties:
+            type:
+              type: string
+              minLength: 1
+              maxLength: 10
+            number:
+              type: string
+              minLength: 1
+              maxLength: 20
+        phone:
+          type: object
+          minProperties: 1
+          properties:
+            area_code:
+              type: string
+              minLength: 1
+              maxLength: 10
+            number:
+              type: string
+              minLength: 1
+              maxLength: 20
+        address:
+          type: object
+          minProperties: 1
+          properties:
+            street_name:
+              type: string
+              minLength: 1
+              maxLength: 100
+            street_number:
+              type: string
+              minLength: 1
+              maxLength: 10
+            zip_code:
+              type: string
+              minLength: 1
+              maxLength: 20
+            neighborhood:
+              type: string
+              minLength: 1
+              maxLength: 40
+            state:
+              type: string
+              minLength: 2
+              maxLength: 50
+            city:
+              type: string
+              minLength: 1
+              maxLength: 40
+            complement:
+              type: string
+              minLength: 1
+              maxLength: 20
+        customer_id:
+          type: string
+          description: >-
+            Customer ID in Mercado Pago's system. Mutually exclusive with the combination of `email` and `payer.id`. Used in
+            automatic payments flows alongside the `automatic_payments` payment method.
+          x-visibility: partner
+          minLength: 1
+          maxLength: 100
+
+    OrderOPPayerAutomaticPaymentsRequest:
+      type: object
+      description: Payer node when `automatic_payments` node is present
+      minProperties: 1
+      required:
+      - customer_id
+      properties:
+        customer_id:
+          type: string
+          minLength: 1
+          maxLength: 100
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        identification:
+          type: object
+          minProperties: 1
+          required:
+          - type
+          - number
+          properties:
+            type:
+              type: string
+              minLength: 1
+              maxLength: 10
+            number:
+              type: string
+              minLength: 1
+              maxLength: 20
+        phone:
+          type: object
+          minProperties: 1
+          properties:
+            area_code:
+              type: string
+              minLength: 1
+              maxLength: 10
+            number:
+              type: string
+              minLength: 1
+              maxLength: 20
+        address:
+          type: object
+          minProperties: 1
+          properties:
+            street_name:
+              type: string
+              minLength: 1
+              maxLength: 100
+            street_number:
+              type: string
+              minLength: 1
+              maxLength: 10
+            zip_code:
+              type: string
+              minLength: 1
+              maxLength: 20
+            neighborhood:
+              type: string
+              minLength: 1
+              maxLength: 40
+            state:
+              type: string
+              minLength: 2
+              maxLength: 50
+            city:
+              type: string
+              minLength: 1
+              maxLength: 40
+            complement:
+              type: string
+              minLength: 1
+              maxLength: 20
+
+    OrderOPPaymentMethodBankTransferRequest:
+      type: object
+      minProperties: 1
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          enum:
+          - clabe
+          - pix
+        type:
+          type: string
+          enum:
+          - bank_transfer
+
+    OrderOPPaymentMethodCreditCardRequest:
+      type: object
+      minProperties: 1
+      required:
+      - id
+      - type
+      - token
+      - installments
+      properties:
+        id:
+          type: string
+          enum:
+          - amex
+          - argencard
+          - banesco
+          - cabal
+          - cencosud
+          - cmr
+          - codensa
+          - creditel
+          - diners
+          - edenred
+          - elo
+          - hipercard
+          - kushki
+          - lider
+          - maestro
+          - master
+          - mercantil
+          - naranja
+          - oca
+          - redcompra
+          - sivale_despensa
+          - sivale_restaurant
+          - sucredito
+          - visa
+        type:
+          type: string
+          enum:
+          - credit_card
+          - prepaid_card
+        token:
+          type: string
+          minLength: 32
+          maxLength: 32
+        installments:
+          type: integer
+          minimum: 1
+        statement_descriptor:
+          type: string
+          minLength: 1
+          maxLength: 50
+
+    OrderOPPaymentMethodDebitCardRequest:
+      type: object
+      minProperties: 1
+      required:
+      - id
+      - type
+      - token
+      properties:
+        id:
+          type: string
+          enum:
+          - debcabal
+          - debelo
+          - debmaster
+          - debvisa
+        type:
+          type: string
+          enum:
+          - debit_card
+        token:
+          type: string
+          minLength: 32
+          maxLength: 32
+        statement_descriptor:
+          type: string
+          minLength: 1
+          maxLength: 50
+
+    OrderOPPaymentMethodTicketRequest:
+      type: object
+      minProperties: 1
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          enum:
+          - pagofacil
+          - rapipago
+          - oxxo
+          - paycash
+          - bolbradesco
+          - boleto
+        type:
+          type: string
+          enum:
+          - ticket
+
+    ConfirmOrderRequest:
+      description: Confirm transaction amounts request (only for instore QR payment type)
+      type: object
+      required:
+      - transactions
+      properties:
+        transactions:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+            - id
+            - confirmed_amount
+            properties:
+              id:
+                type: string
+                format: ulid
+                description: Transaction ID to confirm
+                examples:
+                - PAY01J3GW5GCVQQB7MEN5FMA6ZJF8
+              confirmed_amount:
+                type: string
+                pattern: ^\d+(\.\d{1,2})?$
+                description: Final confirmed amount for the transaction
+                examples:
+                - '113.34'
+
+    SimulateOrderEventRequest:
+      description: Order request for type point
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - processed
+          - expired
+          - canceled
+          - refunded
+          - failed
+        payment_method_type:
+          type: string
+          enum:
+          - credit_card
+          - debit_card
+          - qr
+          - voucher_card
+          - cash
+        installments:
+          type: integer
+
+    OrderOPResponse:
+      description: Order response for type=online
+      type: object
+      properties:
+        id:
+          type: string
+          format: ulid
+        type:
+          type: string
+          enum:
+          - online
+        external_reference:
+          type: string
+        country_code:
+          type: string
+          enum:
+          - ARG
+          - BRA
+          - CHL
+          - COL
+          - MEX
+          - PER
+          - URY
+          - VEN
+        status:
+          type: string
+        status_detail:
+          type: string
+        capture_mode:
+          type: string
+          enum:
+          - manual
+          - automatic
+          - automatic_async
+          default: automatic_async
+        created_date:
+          type: string
+        last_updated_date:
+          type: string
+        user_id:
+          x-visibility: internal
+          type: string
+        client_token:
+          type:
+          - string
+          - 'null'
+        integration_data:
+          type: object
+          minProperties: 1
+          properties:
+            corporation_id:
+              type: string
+              minLength: 1
+              maxLength: 36
+            application_id:
+              type: string
+            integrator_id:
+              type: string
+              minLength: 1
+              maxLength: 36
+            platform_id:
+              type: string
+              minLength: 1
+              maxLength: 36
+            sponsor:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                  maxLength: 15
+        shipment:
+          x-visibility: internal
+          type: object
+          properties:
+            mode:
+              type: string
+              enum:
+              - me2
+              - custom
+              - not_specified
+            local_pickup:
+              type: boolean
+            free_shipping:
+              type: boolean
+            express:
+              type: boolean
+            default_shipping_method:
+              type: string
+            cost:
+              type: string
+            free_methods:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+            address:
+              type: object
+              properties:
+                street_name:
+                  type: string
+                street_number:
+                  type: string
+                zip_code:
+                  type: string
+                neighborhood:
+                  type: string
+                city:
+                  type: string
+                state:
+                  type: string
+                complement:
+                  type: string
+                floor:
+                  type: string
+                apartment:
+                  type: string
+        transactions:
+          type: object
+          properties:
+            payments:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: ulid
+                  reference_id:
+                    type: string
+                  status:
+                    type: string
+                  status_detail:
+                    type: string
+                  amount:
+                    type: string
+                  confirmed_amount:
+                    x-visibility: internal
+                    type: string
+                    description: Confirmed (captured) amount, monetary string. Omitted when not provided upstream.
+                    examples:
+                    - '100.00'
+                  paid_amount:
+                    type: string
+                  expiration_time:
+                    type: string
+                    format: duration
+                    pattern: ^P(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$
+                    description: Duration in ISO 8601 format (e.g. 'P1D' for 1 day, 'PT1H' for 1 hour).
+                    examples:
+                    - P1D
+                  date_of_expiration:
+                    type: string
+                    format: date-time
+                  payment_method:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        enum:
+                        - abitab
+                        - account_money
+                        - amex
+                        - argencard
+                        - banesco
+                        - bolbradesco
+                        - boleto
+                        - cabal
+                        - cencosud
+                        - clabe
+                        - cmr
+                        - codensa
+                        - consumer_credits
+                        - creditel
+                        - debcabal
+                        - debelo
+                        - debin_transfer
+                        - debmaster
+                        - debvisa
+                        - diners
+                        - edenred
+                        - efecty
+                        - elo
+                        - hipercard
+                        - interop_transfer
+                        - kushki
+                        - lider
+                        - maestro
+                        - master
+                        - mercantil
+                        - naranja
+                        - oca
+                        - oxxo
+                        - pagoefectivo_atm
+                        - pagofacil
+                        - paycash
+                        - pix
+                        - pse
+                        - rapipago
+                        - redcompra
+                        - redpagos
+                        - serfin
+                        - sivale_despensa
+                        - sivale_restaurant
+                        - smart_transfer
+                        - sucredito
+                        - visa
+                      token:
+                        type: string
+                      type:
+                        type: string
+                      installments:
+                        type: integer
+                      statement_descriptor:
+                        type: string
+                      ticket_url:
+                        type: string
+                        description: >-
+                          Ticket URL. Returned for offline payment methods (e.g., Pix, Rapipago, Pago fácil, boleto, OXXO,
+                          Paycash, Clabe).
+                      redirect_url:
+                        type: string
+                        description: >-
+                          Redirect URL. Returned for PSE bank_transfer payments in MCO to redirect the payer to their bank's
+                          portal.
+                      barcode_content:
+                        type: string
+                      reference:
+                        type: string
+                      verification_code:
+                        type: string
+                      financial_institution:
+                        type: string
+                        description: >-
+                          Financial institution code. Returned for bank_transfer and offline payment methods (e.g., PSE,
+                          boleto).
+                      qr_code:
+                        type: string
+                      qr_code_base64:
+                        type: string
+                      digitable_line:
+                        type: string
+                      e2e_id:
+                        type: string
+                      open_finance_account_id:
+                        type: string
+                        x-visibility: wip
+                        description: >-
+                          Open Finance account id. Returned only for `smart_transfer` payments — identifies the account that
+                          originated the transfer.
+                      transaction_security:
+                        type: object
+                        properties:
+                          validation:
+                            type: string
+                            enum:
+                            - on_fraud_risk
+                            - never
+                          liability_shift:
+                            type: string
+                            enum:
+                            - required
+                          id:
+                            type: string
+                          url:
+                            type: string
+                          type:
+                            type: string
+                          status:
+                            type: string
+                  automatic_payments:
+                    $ref: '#/components/schemas/AutomaticPayments'
+            refunds:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    examples:
+                    - REF01HRYJPXYM3ZK71F31AQR76KGR
+                  transaction_id:
+                    type: string
+                    examples:
+                    - PAY01HRYJPXYM3ZK71F31AQR76KGR
+                  reference_id:
+                    x-visibility: internal
+                    type: string
+                  amount:
+                    type: string
+                    examples:
+                    - '100.00'
+                  status:
+                    type: string
+                  e2e_id:
+                    type: string
+        total_amount:
+          type: string
+        total_paid_amount:
+          type: string
+        currency:
+          type: string
+        processing_mode:
+          type: string
+          enum:
+          - manual
+          - automatic
+          - automatic_async
+          default: automatic
+        description:
+          type: string
+        marketplace_fee:
+          x-visibility: internal
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              unit_price:
+                type: string
+              quantity:
+                type: integer
+              external_code:
+                type: string
+              external_position:
+                type: string
+                description: >-
+                  Position supplied by the integrator at order creation time. Returned as a string (matching the upstream
+                  `mp-order-api` contract). Omitted when not provided upstream (empty string upstream is treated as absent).
+                examples:
+                - '2'
+              category_id:
+                type: string
+              type:
+                type: string
+              description:
+                type: string
+              picture_url:
+                type: string
+              warranty:
+                type: boolean
+              event_date:
+                type: string
+        config:
+          type: object
+          properties:
+            payment_method:
+              type: object
+              properties:
+                not_allowed_ids:
+                  x-visibility: internal
+                  type: array
+                  items:
+                    type: string
+                not_allowed_types:
+                  x-visibility: internal
+                  type: array
+                  items:
+                    type: string
+                default_id:
+                  x-visibility: internal
+                  type: string
+                max_installments:
+                  x-visibility: internal
+                  type: integer
+                default_installments:
+                  x-visibility: internal
+                  type: integer
+            notification_url:
+              x-visibility: internal
+              type: string
+              description: URL to receive notifications about order status changes
+              examples:
+              - https://mysite.com/notifications
+            online:
+              type: object
+              properties:
+                callback_url:
+                  type: string
+                success_url:
+                  x-visibility: internal
+                  type: string
+                pending_url:
+                  x-visibility: internal
+                  type: string
+                failure_url:
+                  x-visibility: internal
+                  type: string
+                auto_return:
+                  x-visibility: internal
+                  type: string
+                  enum:
+                  - approved
+                  - all
+                allowed_user_type:
+                  x-visibility: internal
+                  type: string
+                  enum:
+                  - account_only
+                  - guest_only
+                  - default
+                available_from:
+                  x-visibility: internal
+                  type: string
+                  format: date-time
+                tracks:
+                  x-visibility: internal
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - google_ad
+                        - facebook_ad
+                      values:
+                        type: object
+                        properties:
+                          pixel_id:
+                            type: string
+                          conversion_id:
+                            type: string
+                          conversion_label:
+                            type: string
+                differential_pricing:
+                  x-visibility: internal
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                transaction_security:
+                  type: object
+                  properties:
+                    validation:
+                      type: string
+                      enum:
+                      - on_fraud_risk
+                      - never
+                    liability_shift:
+                      type: string
+                      enum:
+                      - required
+                retries:
+                  x-visibility: internal
+                  type: object
+                  description: Retry configuration for payment attempts
+                  properties:
+                    allowed:
+                      type: boolean
+                      description: Whether payment retries are allowed. Defaults to true for manual processing mode.
+                    max_attempts:
+                      type: integer
+                      minimum: 1
+                      maximum: 5
+                      description: Maximum number of payment attempts (default 3)
+            split_rules:
+              x-visibility: wip
+              type: object
+              description: Configuration for split payment rules
+              properties:
+                amount_type:
+                  type: string
+                  enum:
+                  - percentage
+                  - fixed
+                  description: Type of amount calculation for splits
+            cross_border:
+              type: object
+              description: Cross-border payment data returned when present in the order.
+              x-visibility: wip
+              properties:
+                destination_currency:
+                  type: string
+                  description: Currency code of the destination amount.
+                  x-visibility: wip
+                  examples:
+                  - USD
+                destination_amount:
+                  type: string
+                  description: >-
+                    Amount in the destination currency, serialized as a string to preserve precision (Treasury-calculated or
+                    provided).
+                  x-visibility: wip
+                  examples:
+                  - '45.50'
+        checkout_available_at:
+          x-visibility: internal
+          type: string
+        checkout_url:
+          x-documented-by: checkout-pro
+          type: string
+          description: URL to redirect the buyer to the checkout page (available for processing_mode=manual)
+        expiration_time:
+          type: string
+        splits:
+          x-visibility: wip
+          type: array
+          description: Split payment configuration for distributing payments among multiple participants
+          items:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                format: int64
+                description: User ID of the split participant
+                examples:
+                - 123456789
+              amount:
+                type: string
+                description: Amount to be paid to this participant
+                examples:
+                - '100.00'
+              description:
+                type: string
+                description: Description of this split payment
+                examples:
+                - Payment for seller
+              item_references:
+                type: array
+                description: References to items associated with this split
+                items:
+                  type: string
+
+    OrderPointResponse:
+      description: Order response for type=point
+      properties:
+        id:
+          type: string
+          examples:
+          - ORD01HRYJPXYM3ZK71F31AQR76KGR
+        type:
+          type: string
+          enum:
+          - point
+        external_reference:
+          type: string
+        status:
+          type: string
+        status_detail:
+          type: string
+        total_paid_amount:
+          type: string
+        currency:
+          type: string
+        taxes:
+          type: array
+          items:
+            type: object
+            properties:
+              payer_condition:
+                type: string
+                enum:
+                - payment_exempt_iva
+                - payment_taxable_iva
+        transactions:
+          type: object
+          properties:
+            payments:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    examples:
+                    - PAY01HRYJPXYM3ZK71F31AQR76KGR
+                  status:
+                    type: string
+                  amount:
+                    type: string
+                  total_paid_amount:
+                    type: string
+                  tip_amount:
+                    type: string
+                  provider:
+                    type: string
+                  authorization_code:
+                    type: string
+                    description: Authorization code returned by the card network after payment approval
+                  card:
+                    x-visibility: internal
+                    type: object
+                    properties:
+                      last_digits:
+                        type: string
+                      first_digits:
+                        type: string
+        config:
+          type: object
+          properties:
+            notification_url:
+              type: string
+              description: URL to receive notifications about order status changes
+              examples:
+              - https://mysite.com/notifications
+            statement_descriptor:
+              type: string
+              description: Description that appears on the buyer's card statement.
+              minLength: 1
+              maxLength: 50
+              examples:
+              - My Store
+            default_payment_due_date:
+              type: string
+              format: duration
+              pattern: ^P(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$
+              description: Default ISO 8601 expiration duration applied to payments without an individual expiration_time.
+              examples:
+              - P1D
+            point:
+              type: object
+              properties:
+                terminal_id:
+                  type: string
+                print_on_terminal:
+                  type: string
+                  enum:
+                  - SELLER_TICKET
+                  - NO_TICKET
+                ticket_number:
+                  type: string
+                screen_time:
+                  type: string
+            payment_method:
+              type: object
+              properties:
+                default_type:
+                  type: string
+                  enum:
+                  - credit_card
+                  - debit_card
+                  - prepaid_card
+                default_installments:
+                  type: integer
+                  minimum: 1
+                installments_cost:
+                  type: string
+        processing_mode:
+          type: string
+          enum:
+          - automatic
+          default: automatic
+        description:
+          type: string
+        expiration_time:
+          type: string
+
+    OrderQRResponse:
+      description: Order response for type=qr
+      properties:
+        id:
+          type: string
+          examples:
+          - ORD01HRYJPXYM3ZK71F31AQR76KGR
+        type:
+          type: string
+        external_reference:
+          type: string
+        country_code:
+          type: string
+          enum:
+          - ARG
+          - BRA
+          - CHL
+          - COL
+          - MEX
+          - PER
+          - URY
+          - VEN
+        status:
+          type: string
+        user_id:
+          type: string
+        marketplace_fee:
+          type: string
+        currency:
+          type: string
+        integration_data:
+          type: object
+          minProperties: 1
+          properties:
+            corporation_id:
+              type: string
+              minLength: 1
+              maxLength: 36
+            application_id:
+              type: string
+            integrator_id:
+              type: string
+              minLength: 1
+              maxLength: 15
+            platform_id:
+              type: string
+              minLength: 1
+              maxLength: 15
+            sponsor:
+              type: object
+              properties:
+                id:
+                  type: string
+        transactions:
+          type: object
+          properties:
+            payments:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    examples:
+                    - PAY01HRYJPXYM3ZK71F31AQR76KGR
+                  reference_id:
+                    type: string
+                  status:
+                    type: string
+                  amount:
+                    type: string
+                  paid_amount:
+                    type: string
+                  provider:
+                    type: string
+                  authorization_code:
+                    type: string
+                    description: Authorization code returned by the card network after payment approval
+                  card:
+                    x-visibility: internal
+                    type: object
+                    properties:
+                      last_digits:
+                        type: string
+                      first_digits:
+                        type: string
+            cash_outs:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    examples:
+                    - CAS01HRYJPXYM3ZK71F31AQR76KGR
+                  reference_id:
+                    type: string
+                  status:
+                    type: string
+                  amount:
+                    type: string
+                  additional_info:
+                    type: object
+                    properties:
+                      external_cashier_id:
+                        type: integer
+                      fixed_amount:
+                        type: boolean
+                      agency_type:
+                        type: string
+                        enum:
+                        - AGTEC
+                        - AGTOT
+                        - AGPSS
+                      bank_service_code:
+                        type: string
+        config:
+          type: object
+          properties:
+            notification_url:
+              type: string
+              description: URL to receive notifications about order status changes
+              examples:
+              - https://mysite.com/notifications
+            statement_descriptor:
+              type: string
+              description: Description that appears on the buyer's card statement.
+              minLength: 1
+              maxLength: 50
+              examples:
+              - My Store
+            default_payment_due_date:
+              type: string
+              format: duration
+              pattern: ^P(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$
+              description: Default ISO 8601 expiration duration applied to payments without an individual expiration_time.
+              examples:
+              - P1D
+            qr:
+              type: object
+              properties:
+                external_pos_id:
+                  type: string
+                  minLength: 1
+                  maxLength: 40
+                mode:
+                  type: string
+                  enum:
+                  - static
+                  - dynamic
+                  - hybrid
+            payment_method:
+              type: object
+              properties:
+                default_type:
+                  type: string
+                  examples:
+                  - credit_card
+                installments_cost:
+                  type: string
+                  examples:
+                  - seller
+                installments:
+                  type: object
+                  properties:
+                    interest_free:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          examples:
+                          - range
+                        values:
+                          type: array
+                          items:
+                            type: integer
+                          examples:
+                          - - 1
+                          - 6
+                    available:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          examples:
+                          - all
+        total_amount:
+          type: string
+        total_paid_amount:
+          type: string
+        processing_mode:
+          type: string
+          enum:
+          - manual
+          - automatic
+          default: automatic
+        description:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              unit_price:
+                type: string
+              quantity:
+                type: integer
+              unit_measure:
+                type: string
+                enum:
+                - unit
+                - pack
+              external_code:
+                type: string
+              external_categories:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+        discounts:
+          type: object
+          properties:
+            payment_methods:
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                    - credit_card
+                    - debit_card
+                    - account_money
+                    - prepaid_card
+                  new_total_amount:
+                    type: string
+        taxes:
+          type: array
+          items:
+            type: object
+            properties:
+              payer_condition:
+                type: string
+                enum:
+                - payment_exempt_iva
+                - payment_taxable_iva
+        type_response:
+          type: object
+          properties:
+            qr_data:
+              type: string
+
+    RefundsResponse:
+      description: Refunds response
+      type: object
+      properties:
+        refunds:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: ulid
+              transaction_id:
+                type: string
+                format: ulid
+              amount:
+                type: string
+              status:
+                type: string
+
+    PagingResponse:
+      description: Pagination information
+      type: object
+      properties:
+        offset:
+          type: string
+          description: Number of items skipped
+          examples:
+          - '0'
+        limit:
+          type: string
+          description: Maximum number of items returned
+          examples:
+          - '20'
+        total:
+          type: string
+          description: Total number of items available
+          examples:
+          - '100'
+        total_pages:
+          type: string
+          description: Total number of pages available
+          examples:
+          - '5'
+
+    PolicyAgentBlockedError:
+      description: Error returned by the Policy Agent when the caller's account is blocked and its API keys have been revoked.
+      type: object
+      properties:
+        blocked_by:
+          type: string
+          description: Identifies the component that blocked the request.
+        message:
+          type: string
+          description: Human-readable description of the reason for the block.
+        code:
+          type: string
+          description: Machine-readable error code.
+        status:
+          type: integer
+          description: HTTP status code, mirrored in the response body.
+
+    AutomaticPayments:
+      x-visibility: internal
+      type: object
+      description: >-
+        Present when the order uses the Automatic Payments feature. `payment_profile_id` is included when a profile was used
+        or created; omitted otherwise.
+      properties:
+        payment_profile_id:
+          type: string
+        retries:
+          type: integer
+        schedule_date:
+          type: string
+          format: date-time
+        due_date:
+          type: string
+          format: date-time
+        subscription:
+          type: object
+          properties:
+            id:
+              type: string
+            sequence:
+              type: object
+              properties:
+                number:
+                  type: integer
+                total:
+                  type: integer
+            invoice:
+              type: object
+              properties:
+                id:
+                  type: string
+                billing_date:
+                  type: string
+                  format: date
+                period:
+                  type: object
+                  properties:
+                    interval:
+                      type: integer
+                    type:
+                      type: string
+                      enum:
+                      - daily
+                      - weekly
+                      - monthly
