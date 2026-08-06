@@ -486,7 +486,7 @@
                 "card_argentina": {
                   "summary": "Credit card — Argentina (Visa)",
                   "value": {
-                    "transaction_amount": 5000.0,
+                    "transaction_amount": 5000,
                     "token": "YOUR_ACCESS_TOKEN",
                     "description": "Order #1234",
                     "installments": 3,
@@ -503,7 +503,7 @@
                 "oxxo_mexico": {
                   "summary": "OXXO — Mexico",
                   "value": {
-                    "transaction_amount": 500.0,
+                    "transaction_amount": 500,
                     "payment_method_id": "oxxo",
                     "date_of_expiration": "2024-12-31T23:59:59.000-06:00",
                     "payer": {
@@ -516,6 +516,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "Payment created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Payment created",
             "content": {
@@ -537,16 +547,6 @@
           },
           "422": {
             "$ref": "#/components/responses/UnprocessableEntity"
-          },
-          "200": {
-            "description": "Payment created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Payment"
-                }
-              }
-            }
           }
         }
       }
@@ -585,6 +585,9 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
@@ -593,9 +596,6 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
           }
         }
       },
@@ -788,11 +788,11 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
@@ -848,7 +848,7 @@
                 "partial_refund": {
                   "summary": "Partial refund of R$50",
                   "value": {
-                    "amount": 50.0
+                    "amount": 50
                   }
                 }
               }
@@ -1051,11 +1051,11 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -1175,11 +1175,11 @@
               }
             }
           },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
@@ -1917,6 +1917,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "Preference created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preference"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Preference created",
             "content": {
@@ -1932,16 +1942,6 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "200": {
-            "description": "Preference created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Preference"
-                }
-              }
-            }
           }
         }
       }
@@ -1979,11 +1979,11 @@
               }
             }
           },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       },
@@ -2258,14 +2258,14 @@
               }
             }
           },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       },
@@ -2460,14 +2460,14 @@
               }
             }
           },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       },
@@ -3785,14 +3785,14 @@
               }
             }
           },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       },
@@ -4477,7 +4477,7 @@
               "type": "number",
               "format": "float"
             },
-            "example": 1000.0
+            "example": 1000
           },
           {
             "name": "issuer_id",
@@ -5189,7 +5189,7 @@
                       "type": "PIX"
                     },
                     "transaction": {
-                      "amount": 100.0,
+                      "amount": 100,
                       "currency_id": "BRL"
                     }
                   }
@@ -9605,6 +9605,80 @@
           }
         }
       }
+    },
+    "/checkout/preferences/{id}/expire": {
+      "put": {
+        "tags": [
+          "Preferences"
+        ],
+        "summary": "Expires a Preference",
+        "description": "Expires a payment preference. Enter the preference ID and it will be expired.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Preference ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preference"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -11467,7 +11541,7 @@
             "type": "number",
             "format": "float",
             "description": "Amount to refund. Omit for a full refund.",
-            "example": 50.0
+            "example": 50
           }
         }
       },
