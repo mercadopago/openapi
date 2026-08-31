@@ -9086,3 +9086,383 @@ components:
             $ref: '#/components/schemas/WebhookEvent'
         pagination:
           $ref: '#/components/schemas/Pagination'
+
+    BadRequest:
+      type: object
+      properties:
+        cause:
+          type: array
+          items:
+            type: string
+        error:
+          type: string
+          examples:
+            - bad_request
+        message:
+          type: string
+          examples:
+            - '{parameter} is required or as an incorrect format'
+        status:
+          type: integer
+          examples:
+            - 400
+    Config:
+      type: object
+      properties:
+        qr:
+          $ref: '#/components/schemas/QRConfig'
+    DataResponse:
+      type: object
+      properties:
+        terminals:
+          type: array
+          description: Array of terminals associated with the integrator account.
+          items:
+            $ref: '#/components/schemas/TerminalResponse'
+    InternalError:
+      type: object
+      properties:
+        cause:
+          type: array
+          items:
+            type: string
+        error:
+          type: string
+          examples:
+            - internal_error
+        message:
+          type: string
+          examples:
+            - Oops! Something went wrong.
+        status:
+          type: integer
+          examples:
+            - 500
+    ListDeviceResponse:
+      type: object
+      properties:
+        financing_mode:
+          type: string
+          description: Financing mode of the device, sourced from the upstream virtualization response. Omitted when absent or empty.
+          examples:
+            - SELLER
+        has_transport_recharges:
+          type: boolean
+          description: Indicates if the device supports transport recharges.
+          examples:
+            - true
+        login_session_status:
+          type: string
+          description: Login session status.
+        pdv:
+          type: object
+          description: PDV configuration and status information.
+          allOf:
+            - $ref: '#/components/schemas/Pdv'
+        pin:
+          type: object
+          description: PIN configuration and status.
+          allOf:
+            - $ref: '#/components/schemas/Pin'
+        point_of_interaction:
+          type: object
+          description: Point of interaction device information.
+          allOf:
+            - $ref: '#/components/schemas/PointOfInteraction'
+        pos_id:
+          type: integer
+          description: Point of sale ID.
+          examples:
+            - 67890
+        status:
+          type: string
+          description: Current device status (ACTIVE, INACTIVE).
+          examples:
+            - ACTIVE
+        store_id:
+          type: string
+          description: Store ID where the device is located.
+          examples:
+            - STORE_789
+        tips:
+          type: boolean
+          description: Indicates if the device supports tips functionality.
+          examples:
+            - false
+        type:
+          type: string
+          description: Device type classification.
+          examples:
+            - TERMINAL
+        user_id:
+          type: integer
+          description: User ID associated with the device.
+          examples:
+            - 12345
+    ListTerminalsResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          description: Array of terminals associated with the integrator account.
+          allOf:
+            - $ref: '#/components/schemas/DataResponse'
+        paging:
+          type: object
+          description: Paging information.
+          allOf:
+            - $ref: '#/components/schemas/Paging'
+    PaginatedQRDataResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/QRData'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    Pdv:
+      type: object
+      properties:
+        last_modified:
+          type: string
+          description: Timestamp of the last modification to the PDV configuration.
+          examples:
+            - '2023-10-15T14:30:00.000Z'
+        mode:
+          type: string
+          description: PDV operating mode (PDV, STANDALONE, SELF_SERVICE).
+          examples:
+            - PDV
+    Pin:
+      type: object
+      properties:
+        hash:
+          type: string
+          description: Hashed PIN value for security purposes.
+          examples:
+            - $2a$10$N9qo8uLOickgx2ZMRZoMye
+        status:
+          type: string
+          description: PIN status (ACTIVE, INACTIVE).
+          examples:
+            - ACTIVE
+    PointOfInteraction:
+      type: object
+      properties:
+        kind:
+          type: string
+        legacy_poi_type:
+          type: string
+          description: Legacy point of interaction type for backward compatibility.
+          examples:
+            - PAX_A920
+        serial_number:
+          type: string
+          description: Serial number of the point of interaction device.
+          examples:
+            - PAX_A920_123456789
+        type:
+          type: string
+          description: Type of the point of interaction device.
+          examples:
+            - PAX_A920
+    PosConfigDto:
+      type: object
+      properties:
+        qr:
+          $ref: '#/components/schemas/QRConfigDto'
+    PosConfigRequestDto:
+      type: object
+      properties:
+        config:
+          $ref: '#/components/schemas/PosConfigDto'
+        external_id:
+          type: string
+          examples:
+            - ext_pos_001
+        external_store_id:
+          type: string
+          examples:
+            - ext_store_001
+        name:
+          type: string
+          examples:
+            - POS Principal
+        store_id:
+          type: string
+          examples:
+            - '456789'
+    QRConfig:
+      type: object
+      properties:
+        category:
+          type: integer
+          examples:
+            - 621102
+        operating_mode:
+          type: string
+          examples:
+            - standalone
+        url:
+          type: string
+          examples:
+            - https://example.com/payment
+    QRConfigDto:
+      type: object
+      properties:
+        category:
+          type: integer
+          examples:
+            - 5812
+        operating_mode:
+          type: object
+          allOf:
+            - {}
+          examples:
+            - standalone
+        url:
+          type: string
+          examples:
+            - https://example.com/payment
+    QRData:
+      type: object
+      properties:
+        config:
+          $ref: '#/components/schemas/Config'
+        date_created:
+          type: string
+          examples:
+            - '2024-01-15T10:30:00.000Z'
+        date_last_updated:
+          type: string
+          examples:
+            - '2024-01-15T10:30:00.000Z'
+        external_id:
+          type: string
+          examples:
+            - ext_pos_001
+        external_store_id:
+          type: string
+          examples:
+            - ext_store_001
+        id:
+          type: integer
+          examples:
+            - 123456
+        name:
+          type: string
+          examples:
+            - POS Principal
+        qr_response:
+          $ref: '#/components/schemas/QRResponse'
+        status:
+          type: string
+          examples:
+            - active
+        store_id:
+          type: string
+          examples:
+            - '456789'
+        user_id:
+          type: integer
+          examples:
+            - 789012
+    QRResponse:
+      type: object
+      properties:
+        image:
+          type: string
+          examples:
+            - https://example.com/qr.png
+        qr_code:
+          type: string
+          examples:
+            - QR_CODE_STRING
+        template_document:
+          type: string
+          examples:
+            - template_doc_id
+        template_image:
+          type: string
+          examples:
+            - template_img_id
+        uuid:
+          type: string
+          examples:
+            - 550e8400-e29b-41d4-a716-446655440000
+    SchemaError:
+      type: object
+    Terminal:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Terminal ID.
+          examples:
+            - NEWLAND_N950__123456789
+        operating_mode:
+          type: object
+          description: Operating mode of terminal.
+          allOf:
+            - {}
+          examples:
+            - PDV
+    TerminalOperatingModeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Terminal ID.
+          examples:
+            - '1'
+        operating_mode:
+          type: object
+          description: Operating mode of terminal.
+          allOf:
+            - {}
+    TerminalResponse:
+      type: object
+      properties:
+        external_pos_id:
+          type: string
+          description: External point of sale ID.
+        id:
+          type: string
+          description: Terminal ID.
+        operating_mode:
+          type: object
+          description: Operating mode.
+          allOf:
+            - {}
+        pos_id:
+          type: integer
+          description: Point of sale ID.
+        store_id:
+          type: string
+          description: Store ID.
+    Terminals:
+      type: object
+      properties:
+        terminals:
+          type: array
+          description: Array of terminals associated with the integrator account.
+          items:
+            $ref: '#/components/schemas/Terminal'
+    TerminalsOperatingModeResponse:
+      type: object
+      properties:
+        terminals:
+          type: array
+          description: Array of terminals associated with the integrator account.
+          items:
+            $ref: '#/components/schemas/TerminalOperatingModeResponse'
+    Paging:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        total:
+          type: integer
