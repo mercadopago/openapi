@@ -215,6 +215,41 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+    post:
+      description: create payment method configuration
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Payment Method Configuration
+      tags:
+        - Payment Method Configuration
+      requestBody:
+        required: true
+        description: Payment Method Configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodConfigurationInputCreate'
   /v1/payment_methods/installments:
     get:
       operationId: getInstallments
@@ -296,6 +331,3140 @@ paths:
                           installment_amount:
                             type: number
                             format: float
+    post:
+      description: create or update
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create or Update Installment
+      tags:
+        - Installment
+      requestBody:
+        required: true
+        description: Installment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installment'
+  /v1/payment_methods/{id}:
+    get:
+      description: get payment method configuration by id
+      parameters:
+        - description: Payment Method Configuration ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Payment Method Configuration
+      tags:
+        - Payment Method Configuration
+    put:
+      description: update payment method configuration
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Payment Method Configuration
+      tags:
+        - Payment Method Configuration
+      requestBody:
+        required: true
+        description: Payment Method Configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodConfigurationInputUpdate'
+  /v1/payment_methods/{pm_id}/bins:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bin'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Bins by Payment Method Configuration id
+      tags:
+        - Bins
+      requestBody:
+        required: true
+        description: Bins
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BinMulti'
+    put:
+      description: update
+      parameters:
+        - description: Bins ID
+          in: header
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bin'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Inactive Bins by Payment method id
+      tags:
+        - Bins
+      requestBody:
+        required: true
+        description: Bins
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BinMulti'
+  /v1/payment_methods/{pmc_id}/installments:
+    post:
+      description: multi create or update
+      parameters:
+        - description: Payment Method Configuration ID
+          in: path
+          name: pmc_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Multi Create or Update Installment
+      tags:
+        - Installment
+      requestBody:
+        required: true
+        description: Installment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installment'
+    put:
+      description: multi update
+      parameters:
+        - description: Payment Method Configuration ID
+          in: path
+          name: pmc_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Multi Update Installment
+      tags:
+        - Installment
+      requestBody:
+        required: true
+        description: Installment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installment'
+  /v1/payment_methods/{pmcID}/{activate-deactivate}:
+    put:
+      description: activate or deactivate payment method configuration
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Activate or Deactivate Payment Method Configuration
+      tags:
+        - Payment Method Configuration
+      requestBody:
+        required: true
+        description: Payment Method Configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodConfigurationInputUpdate'
+  /v1/payment_methods/{pmcID}/settings:
+    get:
+      description: get card setting by PMC id
+      parameters:
+        - description: Payment Method Configuration ID
+          in: path
+          name: pmcID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CardSettingOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Card Setting by PMC ID
+      tags:
+        - Card Setting
+    post:
+      description: create card setting by PMCID
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSettingOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Card Setting by PMCID
+      tags:
+        - Card Setting
+      requestBody:
+        required: true
+        description: Card Setting
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardSettingInputCreate'
+  /v1/payment_methods/{pmid}/agreements:
+    post:
+      description: create
+      parameters:
+        - description: PM Issuer Relation ID
+          in: path
+          name: pmid
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreements'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Agreements
+      tags:
+        - Agreements
+      requestBody:
+        required: true
+        description: Agreements
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreements'
+  /v1/payment_methods/{pmid}/agreements/{agreementId}:
+    put:
+      description: update
+      parameters:
+        - description: PM Issuer Relation ID
+          in: path
+          name: pmid
+          required: true
+          schema:
+            type: integer
+        - description: Agreements ID
+          in: header
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreements'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Agreements
+      tags:
+        - Agreements
+      requestBody:
+        required: true
+        description: Agreements
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreements'
+  /v1/payment_methods/agreements:
+    get:
+      description: search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Agreements'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search Agreements
+      tags:
+        - Agreements
+  /v1/payment_methods/agreements/{id}:
+    get:
+      description: get by id
+      parameters:
+        - description: Agreements ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreements'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Agreements
+      tags:
+        - Agreements
+  /v1/payment_methods/amount_allowed_by_user:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountAllowedByUserOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create AmountAllowedByUser
+      tags:
+        - AmountAllowedByUser
+      requestBody:
+        required: true
+        description: AmountAllowedByUser
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountAllowedByUserInput'
+  /v1/payment_methods/amount_allowed_by_user/{id}:
+    delete:
+      description: delete by id
+      parameters:
+        - description: AmountAllowedByUser ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Delete AmountAllowedByUser
+      tags:
+        - AmountAllowedByUser
+    get:
+      description: get by id
+      parameters:
+        - description: AmountAllowedByUser ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountAllowedByUserOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get AmountAllowedByUser
+      tags:
+        - AmountAllowedByUser
+    put:
+      description: update
+      parameters:
+        - description: AmountAllowedByUser ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountAllowedByUserOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update AmountAllowedByUser
+      tags:
+        - AmountAllowedByUser
+      requestBody:
+        required: true
+        description: AmountAllowedByUser
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountAllowedByUserInput'
+  /v1/payment_methods/amount_allowed_by_user/search:
+    get:
+      description: search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AmountAllowedByUserInput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search AmountAllowedByUser
+      tags:
+        - AmountAllowedByUser
+  /v1/payment_methods/bins:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bin'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Bins
+      tags:
+        - Bins
+      requestBody:
+        required: true
+        description: Bins
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bin'
+  /v1/payment_methods/bins/{id}:
+    put:
+      description: update
+      parameters:
+        - description: Bins ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bin'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Bins
+      tags:
+        - Bins
+  /v1/payment_methods/bins/search:
+    get:
+      description: search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Bin'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search Bins
+      tags:
+        - Bins
+  /v1/payment_methods/brands:
+    get:
+      description: search brand
+      parameters:
+        - description: Name
+          in: query
+          name: name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Brand'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search Brand
+      tags:
+        - Brand
+    post:
+      description: create brand
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Brand
+      tags:
+        - Brand
+      requestBody:
+        required: true
+        description: Brand
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Brand'
+  /v1/payment_methods/brands/{id}:
+    get:
+      description: get brand by id
+      parameters:
+        - description: Brand ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Brand
+      tags:
+        - Brand
+    put:
+      description: update brand
+      parameters:
+        - description: Brand ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Brand
+      tags:
+        - Brand
+      requestBody:
+        required: true
+        description: Brand
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Brand'
+  /v1/payment_methods/card_settings:
+    post:
+      description: multi create card setting
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CardSettingOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Multi Create Card Setting
+      tags:
+        - Card Setting
+      requestBody:
+        required: true
+        description: Card Settings
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/CardSettingInputCreate'
+              type: array
+  /v1/payment_methods/category_meli-mcc:
+    get:
+      description: get by id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CategoryMeliApiOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get List CategoryMeli
+      tags:
+        - CategoryMeliMcc
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryMeliApiOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create CategoryMeli
+      tags:
+        - CategoryMeliMcc
+      requestBody:
+        required: true
+        description: CategoryMeli
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryMeliApiInput'
+  /v1/payment_methods/category_meli-mcc/{code}:
+    get:
+      description: get by id
+      parameters:
+        - description: CategoryMeli Code
+          in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryMeliApiOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get CategoryMeliByCode
+      tags:
+        - CategoryMeliMcc
+    put:
+      description: update
+      parameters:
+        - description: CategoryMeli Code
+          in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryMeliApiOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update CategoryMeli
+      tags:
+        - CategoryMeliMcc
+      requestBody:
+        required: true
+        description: CategoryMeli
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryMeliApiInput'
+  /v1/payment_methods/composables_assets:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Asset
+      tags:
+        - Asset
+      requestBody:
+        required: true
+        description: Asset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+  /v1/payment_methods/composables_assets/{id}:
+    get:
+      description: get by id
+      parameters:
+        - description: Asset ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Asset
+      tags:
+        - Asset
+    put:
+      description: update
+      parameters:
+        - description: Asset ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Asset
+      tags:
+        - Asset
+      requestBody:
+        required: true
+        description: Asset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+  /v1/payment_methods/composables_assets/notify:
+    post:
+      description: Notify
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Notify Asset
+      tags:
+        - Asset
+      requestBody:
+        required: true
+        description: Asset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+  /v1/payment_methods/composables_assets/search:
+    get:
+      description: search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Asset'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search Asset
+      tags:
+        - Asset
+  /v1/payment_methods/composables_assets_segments:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetSegmented'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create AssetSegmented
+      tags:
+        - AssetSegmented
+      requestBody:
+        required: true
+        description: AssetSegmented
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetSegmented'
+  /v1/payment_methods/composables_assets_segments/{id}:
+    get:
+      description: get by id
+      parameters:
+        - description: AssetSegmented ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetSegmented'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get AssetSegmented
+      tags:
+        - AssetSegmented
+    put:
+      description: update
+      parameters:
+        - description: AssetSegmented ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetSegmented'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update AssetSegmented
+      tags:
+        - AssetSegmented
+      requestBody:
+        required: true
+        description: AssetSegmented
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetSegmented'
+  /v1/payment_methods/default_installments:
+    post:
+      description: create default installment
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultInstallment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Default Installments
+      tags:
+        - Default Installments
+      requestBody:
+        required: true
+        description: Default Installments
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultInstallment'
+  /v1/payment_methods/default_installments/{id}:
+    get:
+      description: get default installment by id
+      parameters:
+        - description: Default Installments ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultInstallment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Default Installments
+      tags:
+        - Default Installments
+    put:
+      description: update default installment
+      parameters:
+        - description: Default Installments ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultInstallment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Default Installments
+      tags:
+        - Default Installments
+      requestBody:
+        required: true
+        description: Default Installments
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultInstallment'
+  /v1/payment_methods/default_installments/search:
+    get:
+      description: search default installment
+      parameters:
+        - description: Site ID
+          in: query
+          name: site_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DefaultInstallment'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search Default Installments
+      tags:
+        - Default Installments
+  /v1/payment_methods/exclusions_by_user:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExclusionByUserOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create ExclusionByUser
+      tags:
+        - ExclusionByUser
+      requestBody:
+        required: true
+        description: ExclusionByUser
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExclusionByUserInput'
+  /v1/payment_methods/exclusions_by_user/{id}:
+    get:
+      description: get by id
+      parameters:
+        - description: ExclusionByUser ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExclusionByUserInput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get ExclusionByUser
+      tags:
+        - ExclusionByUser
+    delete:
+      description: delete by key
+      parameters:
+        - description: ExclusionByUser Key
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Delete ExclusionByUser
+      tags:
+        - ExclusionByUser
+  /v1/payment_methods/exclusions_by_user/search:
+    get:
+      description: search
+      parameters:
+        - description: Issuer ID
+          in: query
+          name: issuer_id
+          schema:
+            type: integer
+        - description: Marketplace
+          in: query
+          name: marketplace
+          schema:
+            type: string
+        - description: User ID
+          in: query
+          name: user_id
+          required: true
+          schema:
+            type: string
+        - description: Payment Method ID
+          in: query
+          name: payment_method_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExclusionByUserOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search ExclusionByUser
+      tags:
+        - ExclusionByUser
+  /v1/payment_methods/finance_deals:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceDeal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create FinanceDeal
+      tags:
+        - FinanceDeal
+      requestBody:
+        required: true
+        description: FinanceDeal
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceDeal'
+  /v1/payment_methods/finance_deals/{id}:
+    get:
+      description: get by id
+      parameters:
+        - description: FinanceDeal ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceDeal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get FinanceDeal
+      tags:
+        - FinanceDeal
+    put:
+      description: update
+      parameters:
+        - description: FinanceDeal ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceDeal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update legals by Issuer ID
+      tags:
+        - FinanceDeal
+      requestBody:
+        required: true
+        description: FinanceDeal
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceDeal'
+  /v1/payment_methods/finance_deals/last_legals_by_issuer/{issuer_id}:
+    get:
+      description: get by issuer id
+      parameters:
+        - description: Issuer ID
+          in: header
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceDeal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get legals by Issuer ID
+      tags:
+        - FinanceDeal
+  /v1/payment_methods/finance_deals/legals_by_issuers:
+    get:
+      description: get legals by Issuer ids
+      parameters:
+        - description: Issuers ID
+          in: query
+          name: issuers
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/IssuerIdWithLegal'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Legals By Issuer Ids
+      tags:
+        - Issuer
+  /v1/payment_methods/finance_deals/search:
+    get:
+      description: search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FinanceDeal'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search FinanceDeal
+      tags:
+        - FinanceDeal
+  /v1/payment_methods/financial_institutions:
+    post:
+      description: create financial institution
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialInstitution'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Financial Institution
+      tags:
+        - Financial Institution
+      requestBody:
+        required: true
+        description: Financial Institution
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinancialInstitution'
+  /v1/payment_methods/financial_institutions/{id}:
+    delete:
+      description: delete financial institution by id
+      parameters:
+        - description: Financial Institution ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Delete Financial Institution
+      tags:
+        - Financial Institution
+    get:
+      description: get financial institution by id
+      parameters:
+        - description: Financial Institution ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialInstitution'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Financial Institution
+      tags:
+        - Financial Institution
+    put:
+      description: update financial institution
+      parameters:
+        - description: Financial Institution ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialInstitution'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Financial Institution
+      tags:
+        - Financial Institution
+      requestBody:
+        required: true
+        description: Financial Institution
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinancialInstitution'
+  /v1/payment_methods/financial_institutions/search:
+    get:
+      description: search financial institutions
+      parameters:
+        - description: Site ID
+          in: query
+          name: site_id
+          required: true
+          schema:
+            type: string
+        - description: Description
+          in: query
+          name: description
+          schema:
+            type: string
+        - description: Reference ID
+          in: query
+          name: reference_id
+          schema:
+            type: string
+        - description: Payment Method ID
+          in: query
+          name: payment_method_id
+          schema:
+            type: string
+        - description: Merchant Account ID
+          in: query
+          name: merchant_account_id
+          schema:
+            type: string
+        - description: Differential Pricing ID
+          in: query
+          name: diff_pricing_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FinancialInstitution'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search Financial Institutions
+      tags:
+        - Financial Institution
+  /v1/payment_methods/find_all:
+    get:
+      description: find all payment methods configuration by params
+      parameters:
+        - description: Site ID
+          in: query
+          name: site_id
+          required: true
+          schema:
+            type: string
+        - description: Payment Method Id
+          in: query
+          name: payment_method_id
+          schema:
+            type: string
+        - description: Owner
+          in: query
+          name: owner
+          schema:
+            type: string
+        - description: Processing Mode
+          in: query
+          name: processing_mode
+          schema:
+            type: string
+        - description: Issuer Id
+          in: query
+          name: issuer_id
+          schema:
+            type: integer
+        - description: Marketplace
+          in: query
+          name: marketplace
+          schema:
+            type: string
+        - description: Status
+          in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Find All Payment Methods Configuration
+      tags:
+        - Payment Method Configuration
+  /v1/payment_methods/groups:
+    get:
+      description: List Group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Group'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: List Group
+      tags:
+        - Group
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Group
+      tags:
+        - Group
+      requestBody:
+        required: true
+        description: Group
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+  /v1/payment_methods/groups/{name}:
+    put:
+      description: update
+      parameters:
+        - description: Group name
+          in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Group
+      tags:
+        - Group
+      requestBody:
+        required: true
+        description: Group
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupInputBulk'
+  /v1/payment_methods/groups/{name}/sellers:
+    get:
+      description: get group sellers by name
+      parameters:
+        - description: Group Name
+          in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GroupSeller'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Group
+      tags:
+        - Group
+  /v1/payment_methods/installments/{id}:
+    delete:
+      description: delete by id
+      parameters:
+        - description: Installment ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Delete Installment
+      tags:
+        - Installment
+    get:
+      description: get by id
+      parameters:
+        - description: Installment ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Installment
+      tags:
+        - Installment
+    put:
+      description: update
+      parameters:
+        - description: Installment ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Installment
+      tags:
+        - Installment
+      requestBody:
+        required: true
+        description: Installment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installment'
+  /v1/payment_methods/installments_by_user:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallmentsByUser'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create InstallmentsByUser
+      tags:
+        - InstallmentsByUser
+      requestBody:
+        required: true
+        description: InstallmentsByUser
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstallmentsByUser'
+  /v1/payment_methods/installments_by_user/{id}:
+    delete:
+      description: delete by id
+      parameters:
+        - description: InstallmentsByUser ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Delete InstallmentsByUser
+      tags:
+        - InstallmentsByUser
+    get:
+      description: get by id
+      parameters:
+        - description: InstallmentsByUser ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallmentsByUser'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get InstallmentsByUser
+      tags:
+        - InstallmentsByUser
+  /v1/payment_methods/installments_by_user/search:
+    get:
+      description: search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/InstallmentsByUser'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search InstallmentsByUser
+      tags:
+        - InstallmentsByUser
+  /v1/payment_methods/own_promos_by_user/search:
+    get:
+      description: search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OwnPromosByUser'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search OwnPromosByUser
+      tags:
+        - OwnPromosByUser
+  /v1/payment_methods/payment_methods:
+    get:
+      description: list payment method
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PaymentMethod'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: List Payment Method
+      tags:
+        - Payment Methods
+    post:
+      description: create payment method
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Payment Method - ONLY FOR MIGRATION REASONS, NEXT TO DEPRECATE
+      tags:
+        - Payment Methods
+      requestBody:
+        required: true
+        description: Payment Method
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethod'
+  /v1/payment_methods/payment_methods-category_meli:
+    post:
+      description: create
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PMCategoryMeli'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create PMCategoryMeli
+      tags:
+        - PMCategoryMeli
+      requestBody:
+        required: true
+        description: PMCategoryMeli
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PMCategoryMeli'
+  /v1/payment_methods/payment_methods-category_meli/{id}:
+    put:
+      description: update
+      parameters:
+        - description: PMCategoryMeli ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PMCategoryMeli'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update PMCategoryMeli
+      tags:
+        - PMCategoryMeli
+      requestBody:
+        required: true
+        description: PMCategoryMeli
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PMCategoryMeli'
+  /v1/payment_methods/payment_methods/{id}:
+    get:
+      description: get payment method by id
+      parameters:
+        - description: Payment Method ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Payment Method
+      tags:
+        - Payment Methods
+    put:
+      description: update payment method
+      parameters:
+        - description: Payment Method ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Payment Method - ONLY FOR PMWV2
+      tags:
+        - Payment Methods
+      requestBody:
+        required: true
+        description: Payment Method
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethod'
+  /v1/payment_methods/payment_type/search:
+    get:
+      description: search payment method
+      parameters:
+        - description: Site ID
+          in: query
+          name: site_id
+          schema:
+            type: string
+        - description: Marketplace
+          in: query
+          name: marketplace
+          schema:
+            type: string
+        - description: Payment Type ID
+          in: query
+          name: payment_type_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PaymentMethod'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search Payment Method
+      tags:
+        - Payment Methods
+  /v1/payment_methods/regulations_notification:
+    post:
+      description: RegulationNotification
+      parameters: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+      summary: Create or Eliminate Exclusions By User for regulation mla_uif
+      tags:
+        - RegulationNotification
+      requestBody:
+        required: true
+        description: body
+        content:
+          application/json:
+            schema:
+              type: object
+  /v1/payment_methods/search:
+    get:
+      description: search payment method configuration by id
+      parameters:
+        - description: Site ID
+          in: query
+          name: site_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Search Payment Method Configuration
+      tags:
+        - Payment Method Configuration
+  /v1/payment_methods/sellers/{sellerID}/groups:
+    get:
+      description: get group sellers by seller id
+      parameters:
+        - description: Seller ID
+          in: path
+          name: sellerID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GroupSellerOutputWithPaymentMethod'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Group
+      tags:
+        - Group
+  /v1/payment_methods/settings:
+    post:
+      description: create card setting
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSettingOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Create Card Setting
+      tags:
+        - Card Setting
+      requestBody:
+        required: true
+        description: Card Setting
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardSettingInputCreate'
+  /v1/payment_methods/settings/{id}:
+    delete:
+      description: delete card setting by id
+      parameters:
+        - description: Card Setting ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Delete Card Setting
+      tags:
+        - Card Setting
+    get:
+      description: get card setting by id
+      parameters:
+        - description: Card Setting ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSettingOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Get Card Setting
+      tags:
+        - Card Setting
+    put:
+      description: update card setting
+      parameters:
+        - description: Card Setting ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSettingOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Update Card Setting
+      tags:
+        - Card Setting
+      requestBody:
+        required: true
+        description: Card Setting
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardSettingInputUpdate'
+  /v1/payment_methods/sync:
+    post:
+      description: create eventos
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+      summary: Job to create events for custom payment methods
+      tags:
+        - custom
+        - events
 components:
   securitySchemes:
     bearerAuth:
@@ -366,3 +3535,1020 @@ components:
             error: too_many_requests
             message: Rate limit exceeded. Retry after the indicated number of seconds.
   schemas: {}
+components:
+  schemas:
+    Agreements:
+      properties:
+        category_id:
+          type: string
+        id:
+          type: string
+        limit:
+          type: integer
+        merchant_accounts:
+          items:
+            $ref: '#/components/schemas/MerchantAccounts'
+          type: array
+        offset:
+          type: integer
+        owner:
+          type: string
+        time_frame:
+          $ref: '#/components/schemas/TimeFrame'
+        until:
+          type: integer
+      type: object
+    AmountAllowedByUserInput:
+      properties:
+        date_created:
+          type: string
+        id:
+          type: integer
+        installment:
+          type: integer
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+        issuer_id:
+          type: integer
+        last_updated:
+          type: string
+        limit:
+          type: integer
+        marketplace:
+          type: string
+        max_allowed_amount:
+          type: number
+        min_allowed_amount:
+          type: number
+        offset:
+          type: integer
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        site_id:
+          type: string
+      type: object
+    AmountAllowedByUserOutput:
+      properties:
+        date_created:
+          type: string
+        id:
+          type: integer
+        installment:
+          type: integer
+        issuer_id:
+          type: integer
+        last_updated:
+          type: string
+        limit:
+          type: integer
+        marketplace:
+          type: string
+        max_allowed_amount:
+          type: number
+        min_allowed_amount:
+          type: number
+        offset:
+          type: integer
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        site_id:
+          type: string
+      type: object
+    Asset:
+      properties:
+        asset_type:
+          type: string
+        code:
+          type: string
+        id:
+          type: integer
+        marketplace:
+          type: string
+        max_allowed_amount:
+          type: string
+        min_allowed_amount:
+          type: string
+        partitions:
+          items:
+            type: string
+          type: array
+        payment_method_id:
+          type: string
+        payment_type_id:
+          type: string
+        segments:
+          items:
+            $ref: '#/components/schemas/AssetSegmented'
+          type: array
+        site_id:
+          type: string
+        status:
+          type: string
+        synchronize:
+          type: string
+        type:
+          type: string
+        version:
+          type: integer
+      type: object
+    AssetSegmented:
+      properties:
+        composable_asset_id:
+          type: integer
+        date_created:
+          type: string
+        date_updated:
+          type: string
+        id:
+          type: integer
+        status:
+          type: string
+        type:
+          type: string
+        user_created:
+          type: string
+        user_updated:
+          type: string
+        value:
+          type: string
+        version:
+          type: integer
+      type: object
+    Bin:
+      properties:
+        agreement_id:
+          type: integer
+        bin:
+          type: integer
+        date_created:
+          type: string
+        date_last_updated:
+          type: string
+        diff_pricing_id:
+          type: integer
+        finance_deal_id:
+          type: integer
+        id:
+          type: integer
+        issuer_id:
+          type: integer
+        marketplace:
+          type: string
+        merchant_account_id:
+          type: string
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        pm_issuer_relation_id:
+          type: integer
+        processing_mode:
+          type: string
+        site_id:
+          type: string
+        status:
+          type: string
+        statusv0:
+          type: string
+      type: object
+    BinMulti:
+      properties:
+        bins:
+          items:
+            type: integer
+          type: array
+        owner:
+          type: string
+        status:
+          type: string
+      type: object
+    BinPattern:
+      properties:
+        exclusion_pattern:
+          type: string
+        installments_pattern:
+          type: string
+        pattern:
+          type: string
+      type: object
+    Brand:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+      type: object
+    CardNumber:
+      properties:
+        length:
+          type: integer
+        validation:
+          type: string
+      type: object
+    CardSettingInputCreate:
+      properties:
+        agreement_id:
+          type: integer
+        bin:
+          $ref: '#/components/schemas/BinPattern'
+        card_number:
+          $ref: '#/components/schemas/CardNumber'
+        id:
+          type: integer
+        issuer_id:
+          type: integer
+        marketplace:
+          type: string
+        merchant_account_id:
+          type: string
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        pm_issuer_relation_id: {}
+        processing_mode:
+          type: string
+        security_code:
+          $ref: '#/components/schemas/SecurityCode'
+        site_id:
+          type: string
+      type: object
+    CardSettingInputUpdate:
+      properties:
+        bin:
+          $ref: '#/components/schemas/BinPattern'
+        card_number:
+          $ref: '#/components/schemas/CardNumber'
+        id:
+          type: integer
+        security_code:
+          $ref: '#/components/schemas/SecurityCode'
+      type: object
+    CardSettingOutput:
+      properties:
+        agreement_id:
+          description: Only for migration input
+          type: integer
+        bin:
+          $ref: '#/components/schemas/BinPattern'
+        card_number:
+          $ref: '#/components/schemas/CardNumber'
+        id:
+          type: integer
+        issuer_id:
+          description: Only for migration input
+          type: integer
+        marketplace:
+          description: Only for migration input
+          type: string
+        merchant_account_id:
+          description: Only for migration input
+          type: string
+        owner:
+          description: Only for migration input
+          type: string
+        payment_method_id:
+          description: Only for migration input
+          type: string
+        pmissuerid:
+          type: string
+        processing_mode:
+          description: Only for migration input
+          type: string
+        security_code:
+          $ref: '#/components/schemas/SecurityCode'
+        site_id:
+          description: Only for migration input
+          type: string
+      type: object
+    CategoryMeliApiInput:
+      properties:
+        categories:
+          items:
+            type: integer
+          type: array
+        category_meli_id:
+          type: integer
+        code:
+          type: string
+        description:
+          type: string
+      type: object
+    CategoryMeliApiOutput:
+      properties:
+        categories_mcc:
+          items:
+            $ref: '#/components/schemas/CategoryMeliMcc'
+          type: array
+        code:
+          type: string
+        description:
+          type: string
+        id:
+          type: integer
+        partition_name:
+          type: string
+      type: object
+    CategoryMeliMcc:
+      properties:
+        category_meli_id:
+          type: integer
+        code_mcc:
+          type: integer
+        id:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+      type: object
+    DefaultInstallment:
+      properties:
+        create_by:
+          type: string
+        date_created:
+          type: string
+        full_cft:
+          type: number
+        full_tea:
+          type: number
+        id:
+          type: integer
+        installment_rate:
+          type: number
+        installments:
+          type: integer
+        labels:
+          items:
+            type: string
+          type: array
+        last_modified:
+          type: string
+        marketplace:
+          type: string
+        max_amount:
+          type: number
+        min_amount:
+          type: number
+        payment_type:
+          type: string
+        reduced_cft:
+          type: number
+        reduced_tea:
+          type: number
+        reimbursement_rate:
+          type: number
+        site_id:
+          type: string
+        update_by:
+          type: string
+        version:
+          type: integer
+      type: object
+    ExclusionByUserInput:
+      properties:
+        card_issuer_exception_id:
+          type: integer
+        excluded_owner:
+          type: string
+        id:
+          type: integer
+        is_manual:
+          type: boolean
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+        issuer_id:
+          type: integer
+        key:
+          type: string
+        marketplace:
+          type: string
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        payment_type_id:
+          type: string
+        site_id:
+          type: string
+        unaccepted_payment_method_id:
+          type: integer
+        user_id:
+          type: string
+      type: object
+    ExclusionByUserOutput:
+      properties:
+        card_issuer_exception_id:
+          type: integer
+        excluded_owner:
+          type: string
+        id:
+          type: integer
+        is_manual:
+          type: boolean
+        issuer_id:
+          type: integer
+        key:
+          type: string
+        marketplace:
+          type: string
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        payment_type:
+          type: string
+        site_id:
+          type: string
+        unaccepted_payment_method_id:
+          type: integer
+        user_id:
+          type: string
+      type: object
+    FinanceDeal:
+      properties:
+        created_by:
+          type: string
+        deal_type:
+          description: 'Default value: HAB'
+          type: string
+        diff_pricing_id:
+          type: integer
+        disccount_rate:
+          type: number
+        expiration_date:
+          type: string
+        financing_rate:
+          type: number
+        id:
+          type: integer
+        installments:
+          items:
+            type: integer
+          type: array
+        issuer_id:
+          type: integer
+        issuer_name:
+          type: string
+        last_updated_by:
+          type: string
+        legals:
+          type: string
+        marketplace:
+          type: string
+        max_installments:
+          type: number
+        merchant_account_id:
+          type: string
+        owner:
+          description: 'Default value: site'
+        payment_method_id:
+          type: string
+        previous_finance_deal:
+          type: integer
+        recommended_installment:
+          type: integer
+        site_id:
+          type: string
+        start_date:
+          type: string
+        status:
+          description: 'Default value: pending'
+          type: string
+      type: object
+    FinancialInstitution:
+      properties:
+        create_by:
+          type: string
+        date_created:
+          type: string
+        description:
+          type: string
+        diff_pricing_id:
+          type: integer
+        id:
+          type: integer
+        issuer_id:
+          type: integer
+        last_update:
+          type: string
+        marketplace:
+          type: string
+        merchant_account_id:
+          type: string
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        reference_id:
+          type: string
+        site_id:
+          type: string
+        update_by:
+          type: string
+      type: object
+    FinancialInstitutions:
+      properties:
+        description:
+          type: string
+        id:
+          type: string
+      type: object
+    FinancingDeals:
+      properties:
+        expiration_date:
+          type: string
+        finance_deal_id:
+          type: integer
+        installments:
+          items:
+            type: integer
+          type: array
+        legals:
+          type: string
+        start_date:
+          type: string
+        status:
+          type: string
+      type: object
+    Group:
+      properties:
+        channel:
+          type: string
+        date_created:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        site_id:
+          type: string
+      type: object
+    GroupInputBulk:
+      properties:
+        date:
+          type: string
+        name:
+          type: string
+        operation:
+          type: string
+        sellers:
+          items:
+            type: integer
+          type: array
+      type: object
+    GroupSeller:
+      properties:
+        begin_date:
+          type: string
+        expiration_date:
+          type: string
+        id:
+          type: integer
+        seller_id:
+          type: integer
+      type: object
+    GroupSellerOutputWithPaymentMethod:
+      properties:
+        begin_date:
+          type: string
+        channel:
+          type: string
+        expiration_date:
+          type: string
+        name:
+          type: string
+        payment_methods:
+          items:
+            $ref: '#/components/schemas/GroupSellerPaymentMethodOutput'
+          type: array
+      type: object
+    GroupSellerPaymentMethodOutput:
+      properties:
+        id:
+          type: string
+        issuer:
+          $ref: '#/components/schemas/IssuerOutput'
+        payment_type_id:
+          type: string
+      type: object
+    Installment:
+      properties:
+        agreement_id:
+          type: integer
+        discount_rate:
+          type: number
+        finance_deal_id:
+          type: integer
+        full_cft:
+          type: number
+        full_tea:
+          type: number
+        id:
+          type: integer
+        installment_rate:
+          type: number
+        installment_rate_collector:
+          type: string
+        installments:
+          type: number
+        issuer_id:
+          type: integer
+        labels:
+          items:
+            type: string
+          type: array
+        marketplace:
+          type: string
+        max_allowed_amount:
+          type: number
+        merchant_account_id:
+          type: string
+        min_allowed_amount:
+          type: number
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        payment_type_id:
+          type: string
+        pm_issuer_relation_id:
+          type: integer
+        previous_installment:
+          type: integer
+        reduced_cft:
+          type: number
+        reduced_tea:
+          type: number
+        reimbursement_rate:
+          type: number
+        site_id:
+          type: string
+        status:
+          type: string
+      type: object
+    InstallmentsByUser:
+      properties:
+        action:
+          type: string
+        created_by:
+          type: integer
+        id:
+          type: integer
+        installments:
+          type: integer
+        issuer_id:
+          type: integer
+        last_modified_by:
+          type: integer
+        marketplace:
+          type: string
+        owner:
+          type: integer
+        payment_method_id:
+          type: string
+        site_id:
+          type: string
+      type: object
+    Issuer:
+      properties:
+        default:
+          type: boolean
+        id:
+          type: integer
+        name:
+          type: string
+      type: object
+    IssuerIdWithLegal:
+      properties:
+        issuerId:
+          type: integer
+        legals:
+          type: string
+      type: object
+    IssuerOutput:
+      properties:
+        create_by:
+          type: string
+        date_created:
+          type: string
+        default_for:
+          type: string
+        id:
+          type: integer
+        is_default: {}
+        last_modified_date:
+          type: string
+        legals:
+          type: string
+        name:
+          type: string
+        ordering:
+          type: integer
+        root_issuer:
+          type: integer
+        show_legals:
+          type: boolean
+        site_id:
+          type: string
+        update_by:
+          type: string
+      type: object
+    MerchantAccounts:
+      properties:
+        branch_id:
+          type: string
+        id:
+          type: string
+        payment_method_option_id:
+          type: string
+      type: object
+    OwnPromosByUser:
+      properties:
+        expiration_date:
+          type: string
+        finance_deal_id:
+          type: integer
+        id:
+          type: integer
+        installments:
+          items:
+            type: integer
+          type: array
+        issuer_id:
+          type: integer
+        marketplace:
+          type: string
+        owner:
+          type: string
+        payment_method_id:
+          type: string
+        site_id:
+          type: string
+        start_date:
+          type: string
+        status:
+          type: string
+      type: object
+    PMCategoryMeli:
+      properties:
+        category_meli_code:
+          type: string
+        id:
+          type: integer
+        partition_name:
+          type: string
+        payment_method_id:
+          type: integer
+        status:
+          type: string
+      type: object
+    PayerCosts:
+      properties:
+        base_installment_rate:
+          type: number
+        discount_rate:
+          type: number
+        id:
+          type: integer
+        installment_full_cft:
+          type: number
+        installment_full_tea:
+          type: number
+        installment_rate:
+          type: number
+        installment_rate_collector:
+          items:
+            type: string
+          type: array
+        installment_reduced_cft:
+          type: number
+        installment_reduced_tea:
+          type: number
+        installments:
+          type: integer
+        labels:
+          items:
+            type: string
+          type: array
+        max_allowed_amount:
+          type: number
+        min_allowed_amount:
+          type: number
+      type: object
+    PaymentMethodConfigurationInputCreate:
+      properties:
+        accreditation_time:
+          type: integer
+        additional_info_needed:
+          items:
+            type: string
+          type: array
+        agreements:
+          items:
+            $ref: '#/components/schemas/Agreements'
+          type: array
+        bins:
+          items:
+            type: integer
+          type: array
+        deferred_capture:
+          type: string
+        differential_pricing_id:
+          type: integer
+        financial_institutions:
+          items:
+            $ref: '#/components/schemas/FinancialInstitutions'
+          type: array
+        financing_deals:
+          $ref: '#/components/schemas/FinancingDeals'
+        id:
+          description: payment_method_id (master, visa, amex, etc...)
+          type: string
+        installments:
+          description: TODO when pmc is rollouted so validate_create have to be required
+          items:
+            type: integer
+          type: array
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+        labels:
+          items:
+            type: string
+          type: array
+        marketplace:
+          type: string
+        max_accreditation_days:
+          type: integer
+        merchant_account_id:
+          type: string
+        min_accreditation_days:
+          type: integer
+        name:
+          type: string
+        owner:
+          type: string
+        payment_method_id:
+          description: payment_method_configuration_id or pmissuer_relation_id (67696446, 67696449, etc..)
+          type: string
+        payment_type_id:
+          type: string
+        processing_mode:
+          type: string
+        secure_thumbnail:
+          type: string
+        settings:
+          items:
+            $ref: '#/components/schemas/CardSettingInputCreate'
+          type: array
+        site_id:
+          type: string
+        status:
+          description: 'TODO: validate_create add: |eq=active|eq=deactive|eq=archived'
+          type: string
+        thumbnail:
+          type: string
+        total_financial_cost:
+          type: number
+      type: object
+    PaymentMethodConfigurationInputUpdate:
+      properties:
+        accreditation_time:
+          type: integer
+        additional_info_needed:
+          items:
+            type: string
+          type: array
+        bins:
+          items:
+            type: integer
+          type: array
+        deferred_capture:
+          type: string
+        labels:
+          items:
+            type: string
+          type: array
+        max_accreditation_days:
+          type: integer
+        min_accreditation_days:
+          type: integer
+        owner:
+          type: string
+        payment_method_id:
+          description: payment_method_configuration_id or pmissuer_relation_id (67696446, 67696449, etc..)
+          type: string
+        secure_thumbnail:
+          type: string
+        status:
+          type: string
+        thumbnail:
+          type: string
+        total_financial_cost:
+          type: number
+      type: object
+    PaymentMethodConfigurationOutput:
+      properties:
+        accreditation_time:
+          type: integer
+        additional_info_needed:
+          items:
+            type: string
+          type: array
+        agreements:
+          items:
+            $ref: '#/components/schemas/Agreements'
+          type: array
+        bins:
+          items:
+            type: integer
+          type: array
+        deferred_capture:
+          type: string
+        differential_pricing_id:
+          type: integer
+        domain_id:
+          type: integer
+        financial_institutions:
+          items:
+            $ref: '#/components/schemas/FinancialInstitutions'
+          type: array
+        financing_deals:
+          $ref: '#/components/schemas/FinancingDeals'
+        id:
+          description: payment_method_id (master, visa, amex, etc...)
+          type: string
+        inclusion_id:
+          type: integer
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+        labels:
+          items:
+            type: string
+          type: array
+        marketplace:
+          type: string
+        max_accreditation_days:
+          type: integer
+        merchant_account_id:
+          type: string
+        min_accreditation_days:
+          type: integer
+        name:
+          type: string
+        ordering:
+          type: integer
+        owner:
+          type: string
+        payer_costs:
+          items:
+            $ref: '#/components/schemas/PayerCosts'
+          type: array
+        payment_method_id:
+          description: payment_method_configuration_id or pmissuer_relation_id (67696446, 67696449, etc..)
+          type: string
+        payment_type_id:
+          type: string
+        processing_mode:
+          type: string
+        secure_thumbnail:
+          type: string
+        settings:
+          items:
+            $ref: '#/components/schemas/CardSettingOutput'
+          type: array
+        site_id:
+          type: string
+        status:
+          type: string
+        thumbnail:
+          type: string
+        total_financial_cost:
+          type: number
+      type: object
+    SecurityCode:
+      properties:
+        card_location:
+          type: string
+        length:
+          type: integer
+        mode:
+          type: string
+      type: object
+    TimeFrame:
+      properties:
+        end_date:
+          type: string
+        start_date:
+          type: string
+        week_days:
+          items:
+            type: string
+          type: array
+      type: object

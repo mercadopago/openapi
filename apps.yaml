@@ -1,74 +1,137 @@
-# Pipeline configuration: Fury Spec Hub → openapi/spec3.yaml
-#
-# fury_app: exact app name registered in Fury Spec Hub
-# tag:      matching tag name in spec3.yaml (groups paths by product)
-# product:  product slug — used as subfolder in by-site/{SITE}/{product}/spec3.yaml
-# paths:    path prefixes owned by this app (scopes merges in both directions)
-
 apps:
   - fury_app: payments
     tag: Payments
     product: payments
     paths:
       - /v1/payments
-
+    reference:
+      enabled: true
+      devsite_file: payments
   - fury_app: openplatform-customer-go
     tag: Customers
     product: customers
     paths:
       - /v1/customers
-
+    reference:
+      enabled: true
+      devsite_file: customers
   - fury_app: mpcs-preferences-api
     tag: Preferences
     product: preferences
     paths:
       - /checkout/preferences
-
+    reference:
+      enabled: true
+      devsite_file: preferences
   - fury_app: chargeback-frontend-wrapper
     tag: Chargebacks
     product: chargebacks
     paths:
       - /v1/chargebacks
-
+      - /v1/payments
+    reference:
+      enabled: true
+      devsite_file: chargebacks-payments
   - fury_app: mp-subscriptions
     tag: Subscriptions
     product: subscriptions
     paths:
       - /preapproval
       - /preapproval_plan
-
+    reference:
+      enabled: true
+      devsite_file: subscriptions
   - fury_app: merchant-orders-api
     tag: Merchant Orders
     product: merchant_orders
     paths:
       - /merchant_orders
-
+    reference:
+      enabled: true
+      devsite_file: merchant_orders
   - fury_app: platsec-oauth-api
     tag: OAuth
     product: oauth
     paths:
       - /oauth/token
-
+    reference:
+      enabled: true
+      devsite_file: oauth
   - fury_app: payment-methods-write-v2
     tag: Payment Methods
     product: payment_methods
     paths:
       - /v1/payment_methods
-
+    reference:
+      enabled: true
+      devsite_file: payment_methods
   - fury_app: stores-api
     tag: Stores
     product: stores
     paths:
       - /users/
-
   - fury_app: instore-api-pos
     tag: POS
     product: pos
     paths:
       - /pos
-
+    reference:
+      enabled: true
+      devsite_file: pos
   - fury_app: mp-public-order-api
     tag: Orders
     product: orders
     paths:
       - /v1/orders
+    reference:
+      enabled: true
+      devsite_file: orders-checkout-api
+  - tag: Addresses
+    product: addresses
+    paths:
+      - /v1/customers
+    reference:
+      enabled: true
+      devsite_file: addresses
+  - tag: Advanced Payments
+    product: advanced_payments
+    paths:
+      - /v1/advanced_payments
+    reference:
+      enabled: true
+      devsite_file: advanced_payments
+  - tag: Orders Point Kiosko
+    product: orders_point_kiosko
+    paths:
+      - /v1/orders
+    reference:
+      enabled: true
+      devsite_file: orders-point-kiosko
+  - tag: Orders Point
+    product: orders_point
+    paths:
+      - /v1/orders
+    reference:
+      enabled: true
+      devsite_file: orders-point
+  - tag: Payouts
+    product: payouts
+    paths:
+      - /v1/payouts
+    reference:
+      enabled: true
+      devsite_file: payouts
+  - tag: Reports
+    product: reports
+    paths:
+      - /v1/account/release_report
+    reference:
+      enabled: true
+      devsite_file: releases_report_create
+  - tag: Reports
+    product: reports
+    paths:
+      - /v1/account/settlement_report
+    reference:
+      enabled: true
+      devsite_file: settlements_report

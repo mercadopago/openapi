@@ -1872,6 +1872,34 @@ paths:
         en: Refund an order
         pt: TODO
         es: TODO
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Orders
+      parameters:
+        - $ref: '#/components/parameters/OrderID'
+        - $ref: '#/components/parameters/XIdempotencyKey'
+        - $ref: '#/components/parameters/XProductID'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetOrderRefunds'
+        '400':
+          description: Invalid order
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Order not found
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
   /checkout/preferences:
     post:
       description:
@@ -5307,6 +5335,46 @@ paths:
         en: List available payment methods
         pt: TODO
         es: TODO
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Method Configuration
+      requestBody:
+        required: true
+        description: Payment Method Configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodConfigurationInputCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
   /v1/payment_methods/installments:
     get:
       description:
@@ -5397,6 +5465,46 @@ paths:
         en: Get installment options
         pt: TODO
         es: TODO
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Installment
+      requestBody:
+        required: true
+        description: Installment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installment'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
   /v1/identification_types:
     get:
       description:
@@ -11091,6 +11199,3928 @@ paths:
         en: Validate a coupon
         pt: TODO
         es: TODO
+  /checkout/preferences/{id}/expire:
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Preference
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preference'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Method Configuration
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Method Configuration
+      requestBody:
+        required: true
+        description: Payment Method Configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodConfigurationInputUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/{pm_id}/bins:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Bins
+      requestBody:
+        required: true
+        description: Bins
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BinMulti'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bin'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Bins
+      parameters:
+        - name: id
+          in: header
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Bins
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BinMulti'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bin'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/{pmc_id}/installments:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Installment
+      parameters:
+        - name: pmc_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Installment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installment'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Installment
+      parameters:
+        - name: pmc_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Installment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installment'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/{pmcID}/{activate-deactivate}:
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Method Configuration
+      requestBody:
+        required: true
+        description: Payment Method Configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodConfigurationInputUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/{pmcID}/settings:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Card Setting
+      parameters:
+        - name: pmcID
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CardSettingOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Card Setting
+      requestBody:
+        required: true
+        description: Card Setting
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardSettingInputCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSettingOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/{pmid}/agreements:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Agreements
+      parameters:
+        - name: pmid
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Agreements
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreements'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreements'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/{pmid}/agreements/{agreementId}:
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Agreements
+      parameters:
+        - name: pmid
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: id
+          in: header
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Agreements
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreements'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreements'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/agreements:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Agreements
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Agreements'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/agreements/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Agreements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreements'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/amount_allowed_by_user:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - AmountAllowedByUser
+      requestBody:
+        required: true
+        description: AmountAllowedByUser
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountAllowedByUserInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountAllowedByUserOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/amount_allowed_by_user/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - AmountAllowedByUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountAllowedByUserOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - AmountAllowedByUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: AmountAllowedByUser
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountAllowedByUserInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountAllowedByUserOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    delete:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - AmountAllowedByUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/amount_allowed_by_user/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - AmountAllowedByUser
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AmountAllowedByUserInput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/bins:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Bins
+      requestBody:
+        required: true
+        description: Bins
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bin'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bin'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/bins/{id}:
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Bins
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bin'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/bins/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Bins
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Bin'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/brands:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Brand
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Brand'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Brand
+      requestBody:
+        required: true
+        description: Brand
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Brand'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/brands/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Brand
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Brand
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Brand
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Brand'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/card_settings:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Card Setting
+      requestBody:
+        required: true
+        description: Card Settings
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/CardSettingInputCreate'
+              type: array
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CardSettingOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/category_meli-mcc:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - CategoryMeliMcc
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CategoryMeliApiOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - CategoryMeliMcc
+      requestBody:
+        required: true
+        description: CategoryMeli
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryMeliApiInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryMeliApiOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/category_meli-mcc/{code}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - CategoryMeliMcc
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryMeliApiOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - CategoryMeliMcc
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: CategoryMeli
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryMeliApiInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryMeliApiOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/composables_assets:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Asset
+      requestBody:
+        required: true
+        description: Asset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/composables_assets/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Asset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Asset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Asset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/composables_assets/notify:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Asset
+      requestBody:
+        required: true
+        description: Asset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/composables_assets/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Asset
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Asset'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/composables_assets_segments:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - AssetSegmented
+      requestBody:
+        required: true
+        description: AssetSegmented
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetSegmented'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetSegmented'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/composables_assets_segments/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - AssetSegmented
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetSegmented'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - AssetSegmented
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: AssetSegmented
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetSegmented'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetSegmented'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/default_installments:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Default Installments
+      requestBody:
+        required: true
+        description: Default Installments
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultInstallment'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultInstallment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/default_installments/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Default Installments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultInstallment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Default Installments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Default Installments
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultInstallment'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultInstallment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/default_installments/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Default Installments
+      parameters:
+        - name: site_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DefaultInstallment'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/exclusions_by_user:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - ExclusionByUser
+      requestBody:
+        required: true
+        description: ExclusionByUser
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExclusionByUserInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExclusionByUserOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/exclusions_by_user/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - ExclusionByUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExclusionByUserInput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    delete:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - ExclusionByUser
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/exclusions_by_user/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - ExclusionByUser
+      parameters:
+        - name: issuer_id
+          in: query
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: marketplace
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: payment_method_id
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExclusionByUserOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/finance_deals:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - FinanceDeal
+      requestBody:
+        required: true
+        description: FinanceDeal
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceDeal'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceDeal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/finance_deals/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - FinanceDeal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceDeal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - FinanceDeal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: FinanceDeal
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceDeal'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceDeal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/finance_deals/last_legals_by_issuer/{issuer_id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - FinanceDeal
+      parameters:
+        - name: id
+          in: header
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceDeal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/finance_deals/legals_by_issuers:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Issuer
+      parameters:
+        - name: issuers
+          in: query
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/IssuerIdWithLegal'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/finance_deals/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - FinanceDeal
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FinanceDeal'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/financial_institutions:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Financial Institution
+      requestBody:
+        required: true
+        description: Financial Institution
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinancialInstitution'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialInstitution'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/financial_institutions/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Financial Institution
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialInstitution'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Financial Institution
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Financial Institution
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinancialInstitution'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialInstitution'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    delete:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Financial Institution
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/financial_institutions/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Financial Institution
+      parameters:
+        - name: site_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: description
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: reference_id
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: payment_method_id
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: merchant_account_id
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: diff_pricing_id
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FinancialInstitution'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/find_all:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Method Configuration
+      parameters:
+        - name: site_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: payment_method_id
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: owner
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: processing_mode
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: issuer_id
+          in: query
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: marketplace
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: status
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/groups:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Group'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Group
+      requestBody:
+        required: true
+        description: Group
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/groups/{name}:
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Group
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Group
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupInputBulk'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/groups/{name}/sellers:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Group
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GroupSeller'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/installments/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Installment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Installment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Installment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installment'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    delete:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Installment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/installments_by_user:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - InstallmentsByUser
+      requestBody:
+        required: true
+        description: InstallmentsByUser
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstallmentsByUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallmentsByUser'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/installments_by_user/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - InstallmentsByUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallmentsByUser'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    delete:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - InstallmentsByUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/installments_by_user/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - InstallmentsByUser
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/InstallmentsByUser'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/own_promos_by_user/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - OwnPromosByUser
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OwnPromosByUser'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/payment_methods:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Methods
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PaymentMethod'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Methods
+      requestBody:
+        required: true
+        description: Payment Method
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethod'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/payment_methods-category_meli:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - PMCategoryMeli
+      requestBody:
+        required: true
+        description: PMCategoryMeli
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PMCategoryMeli'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PMCategoryMeli'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/payment_methods-category_meli/{id}:
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - PMCategoryMeli
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: PMCategoryMeli
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PMCategoryMeli'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PMCategoryMeli'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/payment_methods/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Methods
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Methods
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Payment Method
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethod'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/payment_type/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Methods
+      parameters:
+        - name: site_id
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: marketplace
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - name: payment_type_id
+          in: query
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PaymentMethod'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/regulations_notification:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - RegulationNotification
+      requestBody:
+        required: true
+        description: body
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/payment_methods/search:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Payment Method Configuration
+      parameters:
+        - name: site_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PaymentMethodConfigurationOutput'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/sellers/{sellerID}/groups:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Group
+      parameters:
+        - name: sellerID
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GroupSellerOutputWithPaymentMethod'
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/settings:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Card Setting
+      requestBody:
+        required: true
+        description: Card Setting
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardSettingInputCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSettingOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/settings/{id}:
+    get:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Card Setting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSettingOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    put:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Card Setting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        required: true
+        description: Card Setting
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardSettingInputUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSettingOutput'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+    delete:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Card Setting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/payment_methods/sync:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - custom
+        - events
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema: {}
+  /v1/orders/{order_id}/confirm:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Orders
+      parameters:
+        - description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - description:
+            en: TODO
+            pt: TODO
+            es: TODO
+        - description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        $ref: '#/components/requestBodies/ConfirmOrder'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConfirmOrder'
+        '400':
+          $ref: '#/components/responses/ConfirmOrderBadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/ConfirmOrderNotFound'
+        '409':
+          $ref: '#/components/responses/ConfirmOrderConflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /v1/orders/{order_id}/events:
+    post:
+      description:
+        en: TODO
+        pt: TODO
+        es: TODO
+      title:
+        en: TODO
+        pt: TODO
+        es: TODO
+      tags:
+        - Orders
+      parameters:
+        - description:
+            en: TODO
+            pt: TODO
+            es: TODO
+      requestBody:
+        $ref: '#/components/requestBodies/SimulateOrderEvent'
+      responses:
+        '204':
+          description: No Content. The event was accepted and the order status was updated. The response body is empty.
+        '400':
+          $ref: '#/components/responses/SimulateOrderBadRequest'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/SimulateOrderEventNotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   schemas:
     PreferenceRequest:
