@@ -12849,6 +12849,52 @@
           "pt": "Reembolsar uma order",
           "es": "Reembolsar una order"
         }
+      },
+      "get": {
+        "description": {
+          "en": "TODO",
+          "pt": "TODO",
+          "es": "TODO"
+        },
+        "title": {
+          "en": "TODO",
+          "pt": "TODO",
+          "es": "TODO"
+        },
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OrderID"
+          },
+          {
+            "$ref": "#/components/parameters/XIdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/XProductID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetOrderRefunds"
+          },
+          "400": {
+            "description": "Invalid order"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "description": "Order not found"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
       }
     },
     "/checkout/preferences": {
@@ -55533,6 +55579,121 @@
           "en": "Search in invoices",
           "pt": "Buscar em faturas",
           "es": "Buscar en facturas"
+        }
+      }
+    },
+    "/v1/orders/{order_id}/confirm": {
+      "post": {
+        "description": {
+          "en": "TODO",
+          "pt": "TODO",
+          "es": "TODO"
+        },
+        "title": {
+          "en": "TODO",
+          "pt": "TODO",
+          "es": "TODO"
+        },
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "description": {
+              "en": "TODO",
+              "pt": "TODO",
+              "es": "TODO"
+            }
+          },
+          {
+            "description": {
+              "en": "TODO",
+              "pt": "TODO",
+              "es": "TODO"
+            }
+          },
+          {
+            "description": {
+              "en": "TODO",
+              "pt": "TODO",
+              "es": "TODO"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ConfirmOrder"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ConfirmOrder"
+          },
+          "400": {
+            "$ref": "#/components/responses/ConfirmOrderBadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ConfirmOrderNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConfirmOrderConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/v1/orders/{order_id}/events": {
+      "post": {
+        "description": {
+          "en": "TODO",
+          "pt": "TODO",
+          "es": "TODO"
+        },
+        "title": {
+          "en": "TODO",
+          "pt": "TODO",
+          "es": "TODO"
+        },
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "description": {
+              "en": "TODO",
+              "pt": "TODO",
+              "es": "TODO"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SimulateOrderEvent"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content. The event was accepted and the order status was updated. The response body is empty."
+          },
+          "400": {
+            "$ref": "#/components/responses/SimulateOrderBadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/SimulateOrderEventNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
         }
       }
     }
